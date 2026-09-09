@@ -1,0 +1,7 @@
+.env
+.env.local
+.idea
+.claude
+pre-tests
+pre-tests/output
+pre-tests/output/*

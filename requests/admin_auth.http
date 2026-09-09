@@ -1,0 +1,55 @@
+### Variables Globales
+# Asegúrate de que el puerto coincida con el de tu servidor Gin
+@baseUrl = http://localhost:8080/api/admin/auth
+
+# Credenciales de prueba (El email DEBE ser institucional por tu validación)
+#@email = estudiante.prueba7@unsaac.edu.pe
+#@password = SuperSecreta123
+@name = Edward Prueba
+
+@email = 192666@unsaac.edu.pe
+@password = 192666@unsaac.edu.pe
+
+
+# Variables dinámicas (Reemplaza estas manualmente después de ciertos pasos)
+# 1. Busca el OTP en tu BD o consola tras hacer el Register
+@otpCode = 329431
+# 2. Pega aquí el access_token que te devuelve Verify o Login
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODA4MDk4MjcsImlhdCI6MTc4MDU1MDYyNywicm9sZSI6Im1vZGVyYWRvciIsInVzZXJfaWQiOiIwMDRlNWZlZS00YzFhLTRhYTYtOWM5ZS0yYjM2YWEwMTY2ZjYifQ.AbfV8a97s4jGEOjzOOJkWszA_WBooXBhIdRqoR-AlYY
+
+---
+
+### 1. Registrar Usuario (Register)
+# Debe devolver 201 y pedirte que revises tu correo.
+POST {{baseUrl}}/request-otp
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+###
+
+### 2. Verificar OTP (Verify OTP)
+# Cambia la variable @otpCode arriba por el código real que se generó.
+# Si es exitoso, devolverá el access_token y guardará la cookie refresh_token.
+POST {{baseUrl}}/verify-otp
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "code": "{{otpCode}}"
+}
+
+###
+
+### 3. Iniciar Sesión (Login)
+# Funciona solo si el usuario ya está verificado.
+# Devolverá el access_token y seteará la cookie refresh_token.
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+

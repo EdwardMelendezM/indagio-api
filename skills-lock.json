@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "golang-gin-clean-arch": {
+      "source": "henriqueatila/golang-gin-clean-arch",
+      "sourceType": "github",
+      "skillPath": "skills/golang-gin-clean-arch/SKILL.md",
+      "computedHash": "898c952e3784681bb5a35d704463305eba18e5989e353a6cf362983bd24a3f08"
+    }
+  }
+}

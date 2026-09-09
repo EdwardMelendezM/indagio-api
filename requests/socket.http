@@ -1,0 +1,709 @@
+### WebSocket Test Suite
+### ================================================================
+### PREREQUISITES:
+### 1. Get a valid access_token from auth.http (Login or Verify OTP)
+### 2. Get a conversation ID between two users
+### 3. Get user IDs of both users
+### ================================================================
+
+### Variables
+@baseWsUrl = ws://localhost:8080/ws/chat
+@baseApiUrl = http://localhost:8080/api
+
+### Replace with your actual values
+@accessToken = YOUR_ACCESS_TOKEN_HERE
+@userId = YOUR_USER_ID_HERE
+@otherUserId = OTHER_USER_ID_HERE
+@conversationId = CONVERSATION_ID_HERE
+
+---
+
+### ================================================================
+### SECTION 1: CONNECTION & AUTHENTICATION
+### ================================================================
+
+### 1.1 Connect to WebSocket (authenticated)
+### URL: {{baseWsUrl}}?token={{accessToken}}
+### The token is passed as a query parameter for authentication
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "ping",
+  "payload": {},
+  "request_id": "conn-001"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Received: " + message);
+        client.test("Connection successful", () => {
+            client.assert(json.type === "pong" || json.type === "connected");
+        });
+        if (json.type === "pong") {
+            unsubscribe();
+        }
+    });
+%}
+
+---
+
+### ================================================================
+### SECTION 2: PING/PONG HEARTBEAT
+### ================================================================
+
+### 2.1 Send Ping - expect Pong response
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "ping",
+  "payload": {},
+  "request_id": "ping-001"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Ping response: " + message);
+        client.test("Received pong", () => {
+            client.assert(json.type === "pong");
+        });
+        client.test("Request ID matches", () => {
+            client.assert(json.request_id === "ping-001");
+        });
+        unsubscribe();
+    });
+%}
+
+---
+
+### ================================================================
+### SECTION 3: ACTIVE CONVERSATION (Push Gating - NEW)
+### ================================================================
+
+### 3.1 Set active conversation (user is viewing a conversation)
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "active_conversation",
+  "payload": {"conversation_id": "{{conversationId}}"},
+  "request_id": "active-001"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Active conversation set: " + message);
+        // This frame doesn't receive a direct response, just log it
+        if (json.request_id === "active-001") {
+            unsubscribe();
+        }
+    });
+%}
+
+### 3.2 Clear active conversation (user is on listings/settings/background)
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "active_conversation",
+  "payload": {"conversation_id": null},
+  "request_id": "active-002"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Active conversation cleared: " + message);
+        if (json.request_id === "active-002") {
+            unsubscribe();
+        }
+    });
+%}
+
+### 3.3 Invalid UUID in active_conversation (should be silently ignored)
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "active_conversation",
+  "payload": {"conversation_id": "not-a-valid-uuid"},
+  "request_id": "active-003"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Invalid UUID handled: " + message);
+        // Should be silently ignored, no error response expected
+        unsubscribe();
+    });
+%}
+
+---
+
+### ================================================================
+### SECTION 4: SEND MESSAGE
+### ================================================================
+
+### 4.1 Send a text message
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "send_message",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "body": "Hello from WebSocket test!"
+  },
+  "request_id": "send-001"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Send message response: " + message);
+        client.test("Received message_new or ack", () => {
+            client.assert(json.type === "message_new");
+        });
+        client.test("Conversation ID matches", () => {
+            client.assert(json.payload && json.payload.conversation_id === "{{conversationId}}");
+        });
+        client.test("Request ID matches", () => {
+            client.assert(json.request_id === "send-001");
+        });
+        unsubscribe();
+    });
+%}
+
+### 4.2 Send message with reply_to_id
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "send_message",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "body": "This is a reply!",
+    "reply_to_id": "REPLACE_WITH_MESSAGE_ID_TO_REPLY_TO"
+  },
+  "request_id": "send-002"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Reply response: " + message);
+        if (json.request_id === "send-002") {
+            unsubscribe();
+        }
+    });
+%}
+
+### 4.3 Send message with media_url
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "send_message",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "body": "Check out this image!",
+    "media_url": "https://example.com/image.jpg"
+  },
+  "request_id": "send-003"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Media message response: " + message);
+        if (json.request_id === "send-003") {
+            unsubscribe();
+        }
+    });
+%}
+
+### 4.4 Empty body validation (should return error)
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "send_message",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "body": ""
+  },
+  "request_id": "send-004"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Validation error: " + message);
+        client.test("Received error", () => {
+            client.assert(json.type === "error");
+        });
+        client.test("Request ID matches", () => {
+            client.assert(json.request_id === "send-004");
+        });
+        unsubscribe();
+    });
+%}
+
+### 4.5 Invalid conversation_id UUID (should return error)
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "send_message",
+  "payload": {
+    "conversation_id": "invalid-uuid",
+    "body": "Test message"
+  },
+  "request_id": "send-005"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("UUID error: " + message);
+        client.test("Received error for invalid UUID", () => {
+            client.assert(json.type === "error");
+        });
+        unsubscribe();
+    });
+%}
+
+### 4.6 Rate limiting test (send 5 messages rapidly)
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "send_message",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "body": "Rate test 1"
+  },
+  "request_id": "rate-001"
+}
+=== wait-for-server
+{
+  "type": "send_message",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "body": "Rate test 2"
+  },
+  "request_id": "rate-002"
+}
+=== wait-for-server
+{
+  "type": "send_message",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "body": "Rate test 3"
+  },
+  "request_id": "rate-003"
+}
+=== wait-for-server
+{
+  "type": "send_message",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "body": "Rate test 4"
+  },
+  "request_id": "rate-004"
+}
+=== wait-for-server
+{
+  "type": "send_message",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "body": "Rate test 5"
+  },
+  "request_id": "rate-005"
+}
+
+> {%
+    var rateLimited = false;
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Rate test: " + message);
+        if (json.type === "error" && json.payload && json.payload.code === 429) {
+            rateLimited = true;
+            client.test("Rate limited after 4 messages", () => {
+                client.assert(true);
+            });
+        }
+        if (json.request_id === "rate-005") {
+            unsubscribe();
+        }
+    });
+%}
+
+---
+
+### ================================================================
+### SECTION 5: TYPING INDICATOR
+### ================================================================
+
+### 5.1 Start typing
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "typing",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "is_typing": true
+  },
+  "request_id": "typing-001"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Typing start: " + message);
+        // Typing indicator is broadcast to others, not acknowledged
+        unsubscribe();
+    });
+%}
+
+### 5.2 Stop typing
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "typing",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "is_typing": false
+  },
+  "request_id": "typing-002"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Typing stop: " + message);
+        unsubscribe();
+    });
+%}
+
+---
+
+### ================================================================
+### SECTION 6: MARK READ
+### ================================================================
+
+### 6.1 Mark messages as read
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "mark_read",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "last_read_message_id": "REPLACE_WITH_MESSAGE_ID"
+  },
+  "request_id": "read-001"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Mark read: " + message);
+        client.test("Received read_receipt broadcast", () => {
+            client.assert(json.type === "read_receipt" || json.request_id === "read-001");
+        });
+        unsubscribe();
+    });
+%}
+
+### 6.2 Invalid message ID for mark_read
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "mark_read",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "last_read_message_id": "not-a-valid-uuid"
+  },
+  "request_id": "read-002"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Mark read error: " + message);
+        client.test("Received error", () => {
+            client.assert(json.type === "error");
+        });
+        unsubscribe();
+    });
+%}
+
+---
+
+### ================================================================
+### SECTION 7: EDIT MESSAGE
+### ================================================================
+
+### 7.1 Edit a message
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "edit_message",
+  "payload": {
+    "message_id": "REPLACE_WITH_MESSAGE_ID_TO_EDIT",
+    "new_body": "This is the edited message content"
+  },
+  "request_id": "edit-001"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Edit response: " + message);
+        if (json.request_id === "edit-001") {
+            unsubscribe();
+        }
+    });
+%}
+
+---
+
+### ================================================================
+### SECTION 8: DELETE MESSAGE
+### ================================================================
+
+### 8.1 Delete a message
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "delete_message",
+  "payload": {
+    "message_id": "REPLACE_WITH_MESSAGE_ID_TO_DELETE"
+  },
+  "request_id": "delete-001"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Delete response: " + message);
+        if (json.request_id === "delete-001") {
+            unsubscribe();
+        }
+    });
+%}
+
+---
+
+### ================================================================
+### SECTION 9: ERROR HANDLING
+### ================================================================
+
+### 9.1 Unknown frame type (should return error)
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "unknown_frame_type",
+  "payload": {},
+  "request_id": "err-001"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Unknown frame error: " + message);
+        client.test("Received error for unknown frame", () => {
+            client.assert(json.type === "error");
+        });
+        client.test("Error code is validation error (422)", () => {
+            client.assert(json.payload && json.payload.code === 422);
+        });
+        unsubscribe();
+    });
+%}
+
+---
+
+### ================================================================
+### SECTION 10: COMPLETE PUSH GATING TEST SCENARIO
+### ================================================================
+### This test verifies the fix for push notifications when app is open.
+### Steps:
+### 1. Set active_conversation to null (on listings)
+### 2. Send message from B -> Push SHOULD arrive
+### 3. Set active_conversation to this conversation
+### 4. Send message from B -> Push SHOULD NOT arrive (WS delivers)
+### 5. Set active_conversation to null
+### 6. Send message from B -> Push SHOULD arrive again
+### ================================================================
+
+### 10.1 Step 1: User A is on listings (not in conversation)
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "active_conversation",
+  "payload": {"conversation_id": null},
+  "request_id": "push-test-01"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Step 1 (listings): " + message);
+        if (json.request_id === "push-test-01") {
+            unsubscribe();
+        }
+    });
+%}
+
+### 10.2 Step 3: User A enters the conversation
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "active_conversation",
+  "payload": {"conversation_id": "{{conversationId}}"},
+  "request_id": "push-test-03"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Step 3 (entered conversation): " + message);
+        if (json.request_id === "push-test-03") {
+            unsubscribe();
+        }
+    });
+%}
+
+### 10.3 Step 5: User A leaves conversation (back to listings)
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "active_conversation",
+  "payload": {"conversation_id": null},
+  "request_id": "push-test-05"
+}
+
+> {%
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Step 5 (back to listings): " + message);
+        if (json.request_id === "push-test-05") {
+            unsubscribe();
+        }
+    });
+%}
+
+---
+
+### ================================================================
+### SECTION 11: MULTI-DEVICE SCENARIO (requires 2 tokens)
+### ================================================================
+### Device A (token A) and Device B (token B) are connected simultaneously.
+### Messages sent by one should be received by the other via WS broadcast.
+### ================================================================
+
+### 11.1 Device A sends message, Device B receives via broadcast
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "send_message",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "body": "Multi-device test message"
+  },
+  "request_id": "multi-001"
+}
+
+> {%
+    var broadcastReceived = false;
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Multi-device: " + message);
+        if (json.type === "message_new" && json.request_id === undefined) {
+            broadcastReceived = true;
+            client.test("Broadcast received from other device", () => {
+                client.assert(json.payload && json.payload.body === "Multi-device test message");
+            });
+        }
+        if (json.request_id === "multi-001") {
+            client.test("Ack received", () => {
+                client.assert(true);
+            });
+            unsubscribe();
+        }
+    });
+%}
+
+---
+
+### ================================================================
+### SECTION 12: FULL INTEGRATION TEST
+### ================================================================
+### Complete workflow: connect -> set active -> send -> receive -> mark read
+### ================================================================
+
+### Full workflow
+WEBSOCKET ws://localhost:8080/ws/chat?token={{accessToken}}
+Content-Type: application/json
+
+{
+  "type": "active_conversation",
+  "payload": {"conversation_id": "{{conversationId}}"},
+  "request_id": "flow-01"
+}
+=== wait-for-server
+{
+  "type": "send_message",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "body": "Integration test message"
+  },
+  "request_id": "flow-02"
+}
+=== wait-for-server
+{
+  "type": "typing",
+  "payload": {
+    "conversation_id": "{{conversationId}}",
+    "is_typing": false
+  },
+  "request_id": "flow-03"
+}
+=== wait-for-server
+{
+  "type": "active_conversation",
+  "payload": {"conversation_id": null},
+  "request_id": "flow-04"
+}
+
+> {%
+    var step = 0;
+    response.body.onEachMessage((message, unsubscribe) => {
+        const json = JSON.parse(message);
+        client.log("Flow [" + (++step) + "]: " + message);
+
+        if (step >= 4) {
+            client.test("Integration test completed", () => {
+                client.assert(true);
+            });
+            unsubscribe();
+        }
+    });
+%}

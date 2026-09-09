@@ -1,0 +1,106 @@
+### Variables Globales
+# Asegúrate de que el puerto coincida con el de tu servidor Gin
+@baseUrl = http://localhost:8080/api/auth
+
+# Credenciales de prueba (El email DEBE ser institucional por tu validación)
+#@email = estudiante.prueba7@unsaac.edu.pe
+#@password = SuperSecreta123
+@name = Edward Prueba
+
+@email = 192666@unsaac.edu.pe
+@password = 192666@unsaac.edu.pe
+
+
+# Variables dinámicas (Reemplaza estas manualmente después de ciertos pasos)
+# 1. Busca el OTP en tu BD o consola tras hacer el Register
+@otpCode = 381128
+# 2. Pega aquí el access_token que te devuelve Verify o Login
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODE4MTU1NDIsImlhdCI6MTc4MTU1NjM0Miwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiZWE1ZTMwZmYtMDM3OS00MzQ2LWIyYjktZTI1ZDc1ZTlhOGYzIn0.5LLVnvfjA6j464hu5pAA8rlTzYkvxq8kvC37r4QOces
+
+---
+
+### 1. Registrar Usuario (Register)
+# Debe devolver 201 y pedirte que revises tu correo.
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "name": "{{name}}",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+###
+
+### 2. Verificar OTP (Verify OTP)
+# Cambia la variable @otpCode arriba por el código real que se generó.
+# Si es exitoso, devolverá el access_token y guardará la cookie refresh_token.
+POST {{baseUrl}}/verify-otp
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "code": "{{otpCode}}"
+}
+
+###
+
+### 3. Iniciar Sesión (Login)
+# Funciona solo si el usuario ya está verificado.
+# Devolverá el access_token y seteará la cookie refresh_token.
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+###
+
+### 4. Obtener mi Perfil (Me) - Ruta Protegida
+# Cambia la variable @accessToken arriba con el token que te dio el Login/Verify.
+GET {{baseUrl}}/me
+Authorization: Bearer {{accessToken}}
+
+###
+
+### 5. Refrescar Token (Refresh)
+# Nota: Si usas REST Client en VS Code, la cookie "refresh_token" del login
+# se guarda y se envía automáticamente en esta petición.
+POST {{baseUrl}}/refresh
+
+###
+
+### 6. Cerrar Sesión (Logout)
+# Esto invalidará y borrará la cookie "refresh_token".
+POST {{baseUrl}}/logout
+
+###
+
+### 7. Solicitar Código de Recuperación (Forgot Password)
+# PÚBLICO. Envía un código de 6 dígitos al correo si la cuenta existe.
+# Por seguridad, la respuesta es siempre la misma (no revela si el correo está registrado).
+# Para forzar un escenario de prueba, también puedes usar un email NO registrado y deberías
+# recibir el mismo mensaje (200) sin que se envie código alguno.
+POST {{baseUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+###
+
+### 8. Restablecer Contraseña (Reset Password)
+# PÚBLICO. Recibe el código que se generó tras el Forgot Password (15 min de vigencia).
+# Reemplaza la variable otpCode de arriba por el código real que llegó a tu correo.
+# Si el código es válido, la contraseña se actualiza y podrás iniciar sesión con la nueva.
+POST {{baseUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "code": "{{otpCode}}",
+  "new_password": "{{password}}"
+}

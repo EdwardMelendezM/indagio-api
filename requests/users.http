@@ -1,0 +1,79 @@
+### Variables Globales
+# Asegúrate de que el puerto coincida con el de tu servidor Gin
+@baseUrl = http://localhost:8080/api/users
+
+# Credenciales de prueba
+@email = 192666@unsaac.edu.pe
+@password = 192666@unsaac.edu.pe
+
+# Variables dinámicas
+# 1. Obtén el access_token de Login en auth.http
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODA4MDMzODIsImlhdCI6MTc4MDU0NDE4Miwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiMWRkNWFkYmEtZDRlZi00OWUwLTkyZTUtZmJmMzcwNmQ4NDlhIn0.19kTyJ6bqhVX_TCdB2uKNgEIOpNXMitI7-nZZ2uMuZU
+
+# 2. El user_id que devuelve /auth/me o que obtengas de la BD
+@userId = 1dd5adba-d4ef-49e0-92e5-fbf3706d849a
+
+# 3. Otro user_id (de otro usuario) para probar permisos
+@otherUserId = another-user-uuid-here
+
+---
+
+### 1. Actualizar mi Nombre (Update My Name) - Ruta Protegida
+# Solo autenticado - actualiza el nombre del usuario que hace la request (user_id del token)
+PATCH {{baseUrl}}/{{userId}}/name
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Edward Actualizado"
+}
+
+###
+
+### 2. Actualizar Nombre de Otro Usuario (como Moderador/Admin) - Ruta Protegida
+# Si tienes rol "moderador" o "admin", puedes actualizar el nombre de cualquier usuario
+# Asegúrate de usar un token de moderator/admin y cambiar @otherUserId
+PATCH {{baseUrl}}/{{otherUserId}}/name
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Nombre Actualizado por Moderador"
+}
+
+###
+
+### 3. Intentar Actualizar Nombre Sin Permisos - Ruta Protegida
+# Un estudiante no puede cambiar el nombre de otro usuario (devuelve 403 Forbidden)
+# Cambia @otherUserId por un ID diferente al del token
+PATCH {{baseUrl}}/{{otherUserId}}/name
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Intento No Autorizado"
+}
+
+###
+
+### 4. Actualizar con Nombre Muy Corto - Ruta Protegida
+# La validación requiere entre 2 y 100 caracteres (devuelve 400)
+PATCH {{baseUrl}}/{{userId}}/name
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "X"
+}
+
+###
+
+### 5. Actualizar con ID de Usuario Inválido - Ruta Protegida
+# El ID debe ser un UUID válido (devuelve 400)
+PATCH {{baseUrl}}/invalid-uuid/name
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Nombre Valido"
+}
