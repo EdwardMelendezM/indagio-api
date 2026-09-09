@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 )
 
 type postgresOTPRepository struct {

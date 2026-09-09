@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"

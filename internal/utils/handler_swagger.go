@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"foro-unsaac-backend/internal/config"
+	"indagio-api/internal/config"
 	"net/http"
 
 	"github.com/bytedance/gopkg/util/logger"

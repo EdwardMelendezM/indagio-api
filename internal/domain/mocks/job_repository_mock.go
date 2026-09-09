@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 )
 
 // JobRepository is a mock implementation of domain.JobRepository

@@ -7,19 +7,18 @@ import (
 	"math/big"
 	"strings"
 
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 
 	"github.com/google/uuid"
 )
 
 type authUsecase struct {
-	userRepo          domain.UserRepository
-	otpRepo           domain.OTPRepository
-	emailSvc          domain.EmailService
-	passwordSvc       domain.PasswordService
-	tokenSvc          domain.TokenService
-	jobRepo           domain.JobRepository
-	allowedDomainRepo domain.AllowedDomainRepository
+	userRepo    domain.UserRepository
+	otpRepo     domain.OTPRepository
+	emailSvc    domain.EmailService
+	passwordSvc domain.PasswordService
+	tokenSvc    domain.TokenService
+	jobRepo     domain.JobRepository
 }
 
 // NewAuthUsecase — constructor returns interface (Golden Rule 6)
@@ -30,16 +29,14 @@ func NewAuthUsecase(
 	passwordSvc domain.PasswordService,
 	tokenSvc domain.TokenService,
 	jobRepo domain.JobRepository,
-	allowedDomainRepo domain.AllowedDomainRepository,
 ) domain.AuthUsecase {
 	return &authUsecase{
-		userRepo:          userRepo,
-		otpRepo:           otpRepo,
-		emailSvc:          emailSvc,
-		passwordSvc:       passwordSvc,
-		tokenSvc:          tokenSvc,
-		jobRepo:           jobRepo,
-		allowedDomainRepo: allowedDomainRepo,
+		userRepo:    userRepo,
+		otpRepo:     otpRepo,
+		emailSvc:    emailSvc,
+		passwordSvc: passwordSvc,
+		tokenSvc:    tokenSvc,
+		jobRepo:     jobRepo,
 	}
 }
 
@@ -59,21 +56,6 @@ func (uc *authUsecase) SendOTP(ctx context.Context, email string) error {
 }
 
 func (uc *authUsecase) Register(ctx context.Context, name, email, password string) error {
-	// Domain validation - extract and validate domain from email
-	emailDomain, err := domain.ExtractDomain(email)
-	if err != nil {
-		return fmt.Errorf("email format: %w", domain.ErrValidation)
-	}
-
-	// Check if domain is allowed (uses cache internally)
-	allowed, err := uc.allowedDomainRepo.IsAllowed(ctx, emailDomain)
-	if err != nil {
-		return fmt.Errorf("domain check: %w", err)
-	}
-	if !allowed {
-		return fmt.Errorf("domain not allowed: %w", domain.ErrDomainNotAllowed)
-	}
-
 	// Basic validation
 	if len(name) < 2 || len(name) > 80 {
 		return fmt.Errorf("name length: %w", domain.ErrValidation)
@@ -83,7 +65,7 @@ func (uc *authUsecase) Register(ctx context.Context, name, email, password strin
 	}
 
 	// Check email uniqueness
-	_, err = uc.userRepo.FindByEmail(ctx, email)
+	_, err := uc.userRepo.FindByEmail(ctx, email)
 	if err == nil {
 		return fmt.Errorf("email conflict: %w", domain.ErrUserAlreadyExists)
 	}

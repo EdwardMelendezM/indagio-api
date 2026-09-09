@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"foro-unsaac-backend/internal/domain"
-	"foro-unsaac-backend/internal/utils"
+	"indagio-api/internal/domain"
+	"indagio-api/internal/utils"
 
 	"github.com/google/uuid"
 )

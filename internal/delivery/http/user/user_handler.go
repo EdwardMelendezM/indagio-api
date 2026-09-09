@@ -4,9 +4,9 @@ import (
 	"log/slog"
 	"net/http"
 
-	"foro-unsaac-backend/internal/delivery/http/utils"
-	"foro-unsaac-backend/internal/domain"
-	userusecase "foro-unsaac-backend/internal/usecase/user"
+	"indagio-api/internal/delivery/http/utils"
+	"indagio-api/internal/domain"
+	userusecase "indagio-api/internal/usecase/user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

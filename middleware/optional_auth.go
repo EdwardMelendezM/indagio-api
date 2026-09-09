@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 )
 
 // OptionalAuthMiddleware tries to authenticate the request but

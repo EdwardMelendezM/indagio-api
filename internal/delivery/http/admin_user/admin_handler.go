@@ -8,8 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"foro-unsaac-backend/internal/delivery/http/utils"
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/delivery/http/utils"
+	"indagio-api/internal/domain"
 )
 
 // AdminHandler handles all HTTP requests related to admin authentication.

@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 )
 
 func setupAdminUserTest(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {

@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 
 	"golang.org/x/crypto/bcrypt"
 )

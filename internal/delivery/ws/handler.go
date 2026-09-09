@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

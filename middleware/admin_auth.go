@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 	"net/http"
 	"strings"
 

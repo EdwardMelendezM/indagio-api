@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"foro-unsaac-backend/internal/config"
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/config"
+	"indagio-api/internal/domain"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"

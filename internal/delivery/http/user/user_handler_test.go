@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"foro-unsaac-backend/internal/domain"
-	"foro-unsaac-backend/internal/domain/mocks"
+	"indagio-api/internal/domain"
+	"indagio-api/internal/domain/mocks"
 )
 
 func setupUserRouter(handler *UserHandler, authMiddleware func(*gin.Context)) *gin.Engine {

@@ -5,7 +5,7 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"foro-unsaac-backend/internal/config"
+	"indagio-api/internal/config"
 )
 
 // Connect opens and validates a PostgreSQL connection using the provided config.

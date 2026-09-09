@@ -4,7 +4,7 @@ package mocks
 
 import (
 	context "context"
-	domain "foro-unsaac-backend/internal/domain"
+	domain "indagio-api/internal/domain"
 
 	mock "github.com/stretchr/testify/mock"
 

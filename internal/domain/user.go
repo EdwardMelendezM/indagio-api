@@ -54,6 +54,15 @@ const (
 	RoleModerator Role = "moderador"
 )
 
+type AvatarBorder struct {
+	ID           uuid.UUID
+	Slug         string
+	Name         string
+	AssetURL     string
+	ThumbnailURL string
+	Tier         string
+}
+
 // Validate user domain invariants
 func (u *User) Validate() error {
 	if u.Email == "" {

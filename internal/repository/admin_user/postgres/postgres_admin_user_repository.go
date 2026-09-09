@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 
 	"github.com/google/uuid"
 )

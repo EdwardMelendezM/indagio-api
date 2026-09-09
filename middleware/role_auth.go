@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 
 	"github.com/gin-gonic/gin"
 )

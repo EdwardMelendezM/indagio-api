@@ -14,8 +14,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 
-	config2 "foro-unsaac-backend/internal/config"
-	"foro-unsaac-backend/internal/domain"
+	config2 "indagio-api/internal/config"
+	"indagio-api/internal/domain"
 )
 
 type r2Repository struct {

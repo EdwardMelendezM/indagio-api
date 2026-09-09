@@ -3,8 +3,8 @@ package user
 import (
 	"time"
 
-	"foro-unsaac-backend/internal/delivery/http/auth"
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/delivery/http/auth"
+	"indagio-api/internal/domain"
 )
 
 // UpdateUserNameRequest represents the request body for updating username.

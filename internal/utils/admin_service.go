@@ -2,7 +2,7 @@ package utils
 
 import (
 	"database/sql"
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 )
 
 type adminService struct {

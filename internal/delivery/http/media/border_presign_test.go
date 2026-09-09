@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"foro-unsaac-backend/internal/domain"
-	"foro-unsaac-backend/internal/domain/mocks"
+	"indagio-api/internal/domain"
+	"indagio-api/internal/domain/mocks"
 )
 
 func init() {

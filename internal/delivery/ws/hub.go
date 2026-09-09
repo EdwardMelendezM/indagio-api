@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"sync"
 
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 
 	"github.com/google/uuid"
 )

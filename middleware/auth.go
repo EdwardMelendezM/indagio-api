@@ -1,11 +1,11 @@
 package middleware
 
 import (
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 	"net/http"
 	"strings"
 
-	"foro-unsaac-backend/internal/utils"
+	"indagio-api/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )

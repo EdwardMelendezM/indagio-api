@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/domain"
 )
 
 func setupUserTest(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {

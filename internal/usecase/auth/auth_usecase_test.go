@@ -9,8 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"foro-unsaac-backend/internal/domain"
-	"foro-unsaac-backend/internal/domain/mocks"
+	"indagio-api/internal/domain"
+	"indagio-api/internal/domain/mocks"
 )
 
 // TestAuthUsecase_Register tests user registration flow
@@ -22,7 +22,6 @@ func TestAuthUsecase_Register(t *testing.T) {
 		passwordSvc := new(mocks.PasswordService)
 		tokenSvc := new(mocks.TokenService)
 		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
 
 		name := "John Doe"
 		email := "john@unsaac.edu.pe"
@@ -31,8 +30,6 @@ func TestAuthUsecase_Register(t *testing.T) {
 		userID := uuid.New()
 
 		// Setup expectations
-		allowedDomainRepo.On("IsAllowed", mock.Anything, "unsaac.edu.pe").
-			Return(true, nil)
 
 		userRepo.On("FindByEmail", mock.Anything, email).
 			Return(nil, domain.ErrNotFound)
@@ -60,7 +57,7 @@ func TestAuthUsecase_Register(t *testing.T) {
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
 		// Create usecase and test
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		err := uc.Register(context.Background(), name, email, password)
 
 		assert.NoError(t, err)
@@ -76,7 +73,6 @@ func TestAuthUsecase_Register(t *testing.T) {
 		passwordSvc := new(mocks.PasswordService)
 		tokenSvc := new(mocks.TokenService)
 		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
 
 		email := "existing@unsaac.edu.pe"
 		existingUser := &domain.UserInternal{
@@ -84,14 +80,11 @@ func TestAuthUsecase_Register(t *testing.T) {
 			Email: email,
 		}
 
-		allowedDomainRepo.On("IsAllowed", mock.Anything, "unsaac.edu.pe").
-			Return(true, nil)
-
 		userRepo.On("FindByEmail", mock.Anything, email).
 			Return(existingUser, nil)
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		err := uc.Register(context.Background(), "John", email, "Password123!")
 
 		assert.Error(t, err)
@@ -105,37 +98,13 @@ func TestAuthUsecase_Register(t *testing.T) {
 		passwordSvc := new(mocks.PasswordService)
 		tokenSvc := new(mocks.TokenService)
 		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
-
-		allowedDomainRepo.On("IsAllowed", mock.Anything, "unsaac.edu.pe").
-			Return(true, nil)
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		err := uc.Register(context.Background(), "John", "john@unsaac.edu.pe", "short")
 
 		assert.Error(t, err)
 		assert.True(t, errors.Is(err, domain.ErrValidation))
-	})
-
-	t.Run("When email domain invalid", func(t *testing.T) {
-		userRepo := new(mocks.UserRepository)
-		otpRepo := new(mocks.OTPRepository)
-		emailSvc := new(mocks.EmailService)
-		passwordSvc := new(mocks.PasswordService)
-		tokenSvc := new(mocks.TokenService)
-		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
-
-		allowedDomainRepo.On("IsAllowed", mock.Anything, "gmail.com").
-			Return(false, nil)
-
-		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
-		err := uc.Register(context.Background(), "John", "john@gmail.com", "ValidPassword123!")
-
-		assert.Error(t, err)
-		assert.True(t, errors.Is(err, domain.ErrDomainNotAllowed))
 	})
 
 	t.Run("When password hashing fails", func(t *testing.T) {
@@ -145,13 +114,9 @@ func TestAuthUsecase_Register(t *testing.T) {
 		passwordSvc := new(mocks.PasswordService)
 		tokenSvc := new(mocks.TokenService)
 		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
 
 		email := "john@unsaac.edu.pe"
 		password := "ValidPassword123!"
-
-		allowedDomainRepo.On("IsAllowed", mock.Anything, "unsaac.edu.pe").
-			Return(true, nil)
 
 		userRepo.On("FindByEmail", mock.Anything, email).
 			Return(nil, domain.ErrNotFound)
@@ -160,7 +125,7 @@ func TestAuthUsecase_Register(t *testing.T) {
 			Return("", errors.New("hash error"))
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		err := uc.Register(context.Background(), "John", email, password)
 
 		assert.Error(t, err)
@@ -177,7 +142,6 @@ func TestAuthUsecase_VerifyOTP(t *testing.T) {
 		passwordSvc := new(mocks.PasswordService)
 		tokenSvc := new(mocks.TokenService)
 		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
 
 		email := "john@unsaac.edu.pe"
 		code := "123456"
@@ -200,7 +164,7 @@ func TestAuthUsecase_VerifyOTP(t *testing.T) {
 			Return(user, nil)
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		result, err := uc.VerifyOTP(context.Background(), email, code)
 
 		assert.NoError(t, err)
@@ -216,7 +180,6 @@ func TestAuthUsecase_VerifyOTP(t *testing.T) {
 		passwordSvc := new(mocks.PasswordService)
 		tokenSvc := new(mocks.TokenService)
 		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
 
 		email := "john@unsaac.edu.pe"
 		code := "invalid"
@@ -225,7 +188,7 @@ func TestAuthUsecase_VerifyOTP(t *testing.T) {
 			Return(false, nil)
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		result, err := uc.VerifyOTP(context.Background(), email, code)
 
 		assert.Error(t, err)
@@ -243,7 +206,6 @@ func TestAuthUsecase_Login(t *testing.T) {
 		passwordSvc := new(mocks.PasswordService)
 		tokenSvc := new(mocks.TokenService)
 		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
 
 		email := "john@unsaac.edu.pe"
 		password := "CorrectPassword123!"
@@ -264,7 +226,7 @@ func TestAuthUsecase_Login(t *testing.T) {
 			Return(true)
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		result, err := uc.Login(context.Background(), email, password)
 
 		assert.NoError(t, err)
@@ -286,8 +248,7 @@ func TestAuthUsecase_Login(t *testing.T) {
 			Return(nil, domain.ErrNotFound)
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		result, err := uc.Login(context.Background(), email, "password")
 
 		assert.Error(t, err)
@@ -302,7 +263,6 @@ func TestAuthUsecase_Login(t *testing.T) {
 		passwordSvc := new(mocks.PasswordService)
 		tokenSvc := new(mocks.TokenService)
 		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
 
 		email := "john@unsaac.edu.pe"
 		hash := "$2a$12$hashedpassword"
@@ -321,7 +281,7 @@ func TestAuthUsecase_Login(t *testing.T) {
 			Return(false)
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		result, err := uc.Login(context.Background(), email, "WrongPassword")
 
 		assert.Error(t, err)
@@ -336,7 +296,6 @@ func TestAuthUsecase_Login(t *testing.T) {
 		passwordSvc := new(mocks.PasswordService)
 		tokenSvc := new(mocks.TokenService)
 		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
 
 		email := "john@unsaac.edu.pe"
 		hash := "$2a$12$hashedpassword"
@@ -355,7 +314,7 @@ func TestAuthUsecase_Login(t *testing.T) {
 			Return(true)
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		result, err := uc.Login(context.Background(), email, "CorrectPassword123!")
 
 		assert.Error(t, err)
@@ -373,7 +332,6 @@ func TestAuthUsecase_GenerateTokens(t *testing.T) {
 		passwordSvc := new(mocks.PasswordService)
 		tokenSvc := new(mocks.TokenService)
 		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
 
 		userID := uuid.New()
 		role := domain.RoleStudent
@@ -387,7 +345,7 @@ func TestAuthUsecase_GenerateTokens(t *testing.T) {
 			Return(refreshToken, nil)
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		access, refresh, err := uc.GenerateTokens(userID, role)
 
 		assert.NoError(t, err)
@@ -402,7 +360,6 @@ func TestAuthUsecase_GenerateTokens(t *testing.T) {
 		passwordSvc := new(mocks.PasswordService)
 		tokenSvc := new(mocks.TokenService)
 		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
 
 		userID := uuid.New()
 		role := domain.RoleStudent
@@ -411,7 +368,7 @@ func TestAuthUsecase_GenerateTokens(t *testing.T) {
 			Return("", errors.New("token error"))
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		access, refresh, err := uc.GenerateTokens(userID, role)
 
 		assert.Error(t, err)
@@ -437,8 +394,7 @@ func TestAuthUsecase_UpdateUserName(t *testing.T) {
 			Return(nil)
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		err := uc.UpdateUserName(context.Background(), userID, userID, newName)
 
 		assert.NoError(t, err)
@@ -452,14 +408,13 @@ func TestAuthUsecase_UpdateUserName(t *testing.T) {
 		passwordSvc := new(mocks.PasswordService)
 		tokenSvc := new(mocks.TokenService)
 		jobRepo := new(mocks.JobRepository)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
 
 		requesterID := uuid.New()
 		targetUserID := uuid.New()
 		newName := "Moderator Changed"
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		err := uc.UpdateUserName(context.Background(), requesterID, targetUserID, newName)
 
 		assert.Error(t, err)
@@ -478,8 +433,7 @@ func TestAuthUsecase_UpdateUserName(t *testing.T) {
 		targetUserID := uuid.New()
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		err := uc.UpdateUserName(context.Background(), requesterID, targetUserID, "x")
 
 		assert.Error(t, err)
@@ -498,8 +452,7 @@ func TestAuthUsecase_UpdateUserName(t *testing.T) {
 		targetUserID := uuid.New() // different from requester
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		err := uc.UpdateUserName(context.Background(), requesterID, targetUserID, "Some Name")
 
 		assert.Error(t, err)
@@ -521,8 +474,7 @@ func TestAuthUsecase_UpdateUserName(t *testing.T) {
 			Return(errors.New("db error"))
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		err := uc.UpdateUserName(context.Background(), userID, userID, newName)
 
 		assert.Error(t, err)
@@ -552,8 +504,7 @@ func TestAuthUsecase_GetUserByID(t *testing.T) {
 			Return(user, nil)
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		result, err := uc.GetUserByID(context.Background(), userID)
 
 		assert.NoError(t, err)
@@ -575,8 +526,7 @@ func TestAuthUsecase_GetUserByID(t *testing.T) {
 			Return(nil, domain.ErrNotFound)
 
 		jobRepo.On("Enqueue", mock.Anything, mock.AnythingOfType("string"), mock.Anything).Return(nil)
-		allowedDomainRepo := new(mocks.MockAllowedDomainRepository)
-		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo, allowedDomainRepo)
+		uc := NewAuthUsecase(userRepo, otpRepo, emailSvc, passwordSvc, tokenSvc, jobRepo)
 		result, err := uc.GetUserByID(context.Background(), userID)
 
 		assert.Error(t, err)

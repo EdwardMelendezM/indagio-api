@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"foro-unsaac-backend/internal/delivery/ws"
-	"foro-unsaac-backend/internal/domain"
+	"indagio-api/internal/delivery/ws"
+	"indagio-api/internal/domain"
 
 	"github.com/google/uuid"
 )
