@@ -47,37 +47,3 @@ func AuthMiddleware(tokenSvc domain.TokenService) gin.HandlerFunc {
 		c.Next()
 	}
 }
-
-// SSEAuthMiddleware lee el token desde query param ?token= como fallback.
-// Necesario porque EventSource del browser no soporta headers personalizados.
-func SSEAuthMiddleware(tokenSvc domain.TokenService) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var tokenStr string
-
-		// 1. Intentar header estándar primero
-		authHeader := c.GetHeader("Authorization")
-		if strings.HasPrefix(authHeader, "Bearer ") {
-			tokenStr = strings.TrimPrefix(authHeader, "Bearer ")
-		}
-
-		// 2. Fallback: query param (solo para SSE)
-		if tokenStr == "" {
-			tokenStr = c.Query("token")
-		}
-
-		if tokenStr == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "authentication required"})
-			return
-		}
-
-		claims, err := tokenSvc.ValidateAccessToken(tokenStr)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
-			return
-		}
-
-		c.Set("userID", claims.UserID)
-		c.Set("userRole", claims.Role)
-		c.Next()
-	}
-}
