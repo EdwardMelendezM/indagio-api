@@ -2,7 +2,6 @@ package instruments
 
 import (
 	"context"
-	"encoding/json"
 	"log/slog"
 	"net/http"
 	"time"
@@ -23,77 +22,6 @@ func NewInstrumentHandler(uc domain.InstrumentUsecase, logger *slog.Logger) *Ins
 	return &InstrumentHandler{uc: uc, logger: logger}
 }
 
-type createInstrumentRequest struct {
-	Name   string          `json:"name" binding:"required,min=2,max=160"`
-	Kind   string          `json:"kind" binding:"required"`
-	Config json.RawMessage `json:"config"`
-}
-
-type updateInstrumentRequest struct {
-	Name   *string          `json:"name"`
-	Config *json.RawMessage `json:"config"`
-	Status *string          `json:"status"`
-}
-
-type createQuestionnaireRequest struct {
-	Name   string          `json:"name" binding:"required,min=2,max=160"`
-	Schema json.RawMessage `json:"schema" binding:"required"`
-}
-
-type instrumentResponse struct {
-	ID        string          `json:"id"`
-	ProjectID string          `json:"project_id"`
-	Name      string          `json:"name"`
-	Kind      string          `json:"kind"`
-	Config    json.RawMessage `json:"config"`
-	Version   int             `json:"version"`
-	Status    string          `json:"status"`
-	CreatedBy string          `json:"created_by"`
-	CreatedAt time.Time       `json:"created_at"`
-	UpdatedAt time.Time       `json:"updated_at"`
-}
-
-type questionnaireResponse struct {
-	ID        string          `json:"id"`
-	ProjectID string          `json:"project_id"`
-	Name      string          `json:"name"`
-	Version   int             `json:"version"`
-	Status    string          `json:"status"`
-	Schema    json.RawMessage `json:"schema"`
-	CreatedBy string          `json:"created_by"`
-	CreatedAt time.Time       `json:"created_at"`
-	UpdatedAt time.Time       `json:"updated_at"`
-}
-
-func toInstrumentResponse(inst *domain.Instrument) instrumentResponse {
-	return instrumentResponse{
-		ID:        inst.ID.String(),
-		ProjectID: inst.ProjectID.String(),
-		Name:      inst.Name,
-		Kind:      string(inst.Kind),
-		Config:    inst.Config,
-		Version:   inst.Version,
-		Status:    string(inst.Status),
-		CreatedBy: inst.CreatedBy.String(),
-		CreatedAt: inst.CreatedAt,
-		UpdatedAt: inst.UpdatedAt,
-	}
-}
-
-func toQuestionnaireResponse(q *domain.Questionnaire) questionnaireResponse {
-	return questionnaireResponse{
-		ID:        q.ID.String(),
-		ProjectID: q.ProjectID.String(),
-		Name:      q.Name,
-		Version:   q.Version,
-		Status:    q.Status,
-		Schema:    q.Schema,
-		CreatedBy: q.CreatedBy.String(),
-		CreatedAt: q.CreatedAt,
-		UpdatedAt: q.UpdatedAt,
-	}
-}
-
 // CreateInstrument godoc
 // @Summary		Create instrument
 // @Description	Create an instrument template in a project
@@ -101,8 +29,8 @@ func toQuestionnaireResponse(q *domain.Questionnaire) questionnaireResponse {
 // @Accept		json
 // @Produce		json
 // @Param		id path string true "Project ID"
-// @Param		body body map[string]interface{} true "Instrument payload"
-// @Success		201 {object} map[string]interface{}
+// @Param		body body CreateInstrumentRequest true "Instrument payload"
+// @Success		201 {object} InstrumentResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		422 {object} map[string]string
@@ -110,7 +38,7 @@ func toQuestionnaireResponse(q *domain.Questionnaire) questionnaireResponse {
 // @Router		/projects/{id}/instruments [post]
 // @Security	BearerAuth
 func (h *InstrumentHandler) CreateInstrument(c *gin.Context) {
-	var req createInstrumentRequest
+	var req CreateInstrumentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid request"})
 		return
@@ -137,7 +65,7 @@ func (h *InstrumentHandler) CreateInstrument(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusCreated, toInstrumentResponse(instrument))
+	c.JSON(http.StatusCreated, ToInstrumentResponse(instrument))
 }
 
 // ListInstruments godoc
@@ -146,7 +74,7 @@ func (h *InstrumentHandler) CreateInstrument(c *gin.Context) {
 // @Tags		Instruments
 // @Produce		json
 // @Param		id path string true "Project ID"
-// @Success		200 {array} map[string]interface{}
+// @Success		200 {array} InstrumentResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		500 {object} map[string]string
@@ -175,9 +103,9 @@ func (h *InstrumentHandler) ListInstruments(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	resp := make([]instrumentResponse, 0, len(instruments))
+	resp := make([]InstrumentResponse, 0, len(instruments))
 	for _, item := range instruments {
-		resp = append(resp, toInstrumentResponse(&item))
+		resp = append(resp, ToInstrumentResponse(&item))
 	}
 	c.JSON(http.StatusOK, resp)
 }
@@ -190,8 +118,8 @@ func (h *InstrumentHandler) ListInstruments(c *gin.Context) {
 // @Produce		json
 // @Param		id path string true "Project ID"
 // @Param		instrumentID path string true "Instrument ID"
-// @Param		body body map[string]interface{} true "Instrument patch payload"
-// @Success		200 {object} map[string]interface{}
+// @Param		body body UpdateInstrumentRequest true "Instrument patch payload"
+// @Success		200 {object} InstrumentResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		422 {object} map[string]string
@@ -199,7 +127,7 @@ func (h *InstrumentHandler) ListInstruments(c *gin.Context) {
 // @Router		/projects/{id}/instruments/{instrumentID} [patch]
 // @Security	BearerAuth
 func (h *InstrumentHandler) UpdateInstrument(c *gin.Context) {
-	var req updateInstrumentRequest
+	var req UpdateInstrumentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid request"})
 		return
@@ -231,7 +159,7 @@ func (h *InstrumentHandler) UpdateInstrument(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusOK, toInstrumentResponse(instrument))
+	c.JSON(http.StatusOK, ToInstrumentResponse(instrument))
 }
 
 // CreateQuestionnaire godoc
@@ -241,8 +169,8 @@ func (h *InstrumentHandler) UpdateInstrument(c *gin.Context) {
 // @Accept		json
 // @Produce		json
 // @Param		id path string true "Project ID"
-// @Param		body body map[string]interface{} true "Questionnaire payload"
-// @Success		201 {object} map[string]interface{}
+// @Param		body body CreateQuestionnaireRequest true "Questionnaire payload"
+// @Success		201 {object} QuestionnaireResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		422 {object} map[string]string
@@ -250,7 +178,7 @@ func (h *InstrumentHandler) UpdateInstrument(c *gin.Context) {
 // @Router		/projects/{id}/questionnaires [post]
 // @Security	BearerAuth
 func (h *InstrumentHandler) CreateQuestionnaire(c *gin.Context) {
-	var req createQuestionnaireRequest
+	var req CreateQuestionnaireRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid request"})
 		return
@@ -277,7 +205,7 @@ func (h *InstrumentHandler) CreateQuestionnaire(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusCreated, toQuestionnaireResponse(questionnaire))
+	c.JSON(http.StatusCreated, ToQuestionnaireResponse(questionnaire))
 }
 
 // ListQuestionnaires godoc
@@ -286,7 +214,8 @@ func (h *InstrumentHandler) CreateQuestionnaire(c *gin.Context) {
 // @Tags		Questionnaires
 // @Produce		json
 // @Param		id path string true "Project ID"
-// @Success		200 {array} map[string]interface{}
+// @Param		questionnaireID path string true "Questionnaire ID"
+// @Success		200 {array} QuestionnaireResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		500 {object} map[string]string
@@ -315,9 +244,9 @@ func (h *InstrumentHandler) ListQuestionnaires(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	resp := make([]questionnaireResponse, 0, len(questionnaires))
+	resp := make([]QuestionnaireResponse, 0, len(questionnaires))
 	for _, item := range questionnaires {
-		resp = append(resp, toQuestionnaireResponse(&item))
+		resp = append(resp, ToQuestionnaireResponse(&item))
 	}
 	c.JSON(http.StatusOK, resp)
 }
@@ -329,7 +258,7 @@ func (h *InstrumentHandler) ListQuestionnaires(c *gin.Context) {
 // @Produce		json
 // @Param		id path string true "Project ID"
 // @Param		questionnaireID path string true "Questionnaire ID"
-// @Success		200 {object} map[string]interface{}
+// @Success		200 {object} QuestionnaireResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		404 {object} map[string]string
@@ -359,7 +288,7 @@ func (h *InstrumentHandler) PublishQuestionnaire(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusOK, toQuestionnaireResponse(questionnaire))
+	c.JSON(http.StatusOK, ToQuestionnaireResponse(questionnaire))
 }
 
 func RegisterInstrumentRoutes(rg *gin.RouterGroup, h *InstrumentHandler, authMiddleware gin.HandlerFunc) {

@@ -1070,7 +1070,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/projects.projectResponse"
+                                "$ref": "#/definitions/projects.ProjectResponse"
                             }
                         }
                     },
@@ -1118,7 +1118,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/projects.createProjectRequest"
+                            "$ref": "#/definitions/projects.CreateProjectRequest"
                         }
                     }
                 ],
@@ -1126,7 +1126,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/projects.projectResponse"
+                            "$ref": "#/definitions/projects.ProjectResponse"
                         }
                     },
                     "401": {
@@ -1187,7 +1187,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/projects.projectResponse"
+                            "$ref": "#/definitions/projects.ProjectResponse"
                         }
                     },
                     "400": {
@@ -1318,7 +1318,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/projects.updateProjectRequest"
+                            "$ref": "#/definitions/projects.UpdateProjectRequest"
                         }
                     }
                 ],
@@ -1326,7 +1326,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/projects.projectResponse"
+                            "$ref": "#/definitions/projects.ProjectResponse"
                         }
                     },
                     "400": {
@@ -1400,8 +1400,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/answers.CreateAnswerRequest"
                         }
                     }
                 ],
@@ -1546,8 +1545,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "additionalProperties": true
+                                "$ref": "#/definitions/instruments.InstrumentResponse"
                             }
                         }
                     },
@@ -1611,8 +1609,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.CreateInstrumentRequest"
                         }
                     }
                 ],
@@ -1620,8 +1617,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.InstrumentResponse"
                         }
                     },
                     "400": {
@@ -1702,8 +1698,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.UpdateInstrumentRequest"
                         }
                     }
                 ],
@@ -1711,8 +1706,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.InstrumentResponse"
                         }
                     },
                     "400": {
@@ -1784,7 +1778,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/projects.projectMemberResponse"
+                                "$ref": "#/definitions/projects.ProjectMemberResponse"
                             }
                         }
                     },
@@ -1850,7 +1844,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/projects.inviteMemberRequest"
+                            "$ref": "#/definitions/projects.InviteMemberRequest"
                         }
                     }
                 ],
@@ -1858,7 +1852,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/projects.projectInvitationResponse"
+                            "$ref": "#/definitions/projects.ProjectInvitationResponse"
                         }
                     },
                     "400": {
@@ -1930,7 +1924,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/participants.participantResponse"
+                                "$ref": "#/definitions/participants.ParticipantResponse"
                             }
                         }
                     },
@@ -1994,7 +1988,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/participants.createParticipantRequest"
+                            "$ref": "#/definitions/participants.CreateParticipantRequest"
                         }
                     }
                 ],
@@ -2002,7 +1996,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/participants.participantResponse"
+                            "$ref": "#/definitions/participants.ParticipantResponse"
                         }
                     },
                     "400": {
@@ -2079,7 +2073,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/participants.participantResponse"
+                            "$ref": "#/definitions/participants.ParticipantResponse"
                         }
                     },
                     "400": {
@@ -2232,7 +2226,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/answers.createMediaRequest"
+                            "$ref": "#/definitions/answers.CreateMediaRequest"
                         }
                     }
                 ],
@@ -2240,7 +2234,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/answers.mediaResponse"
+                            "$ref": "#/definitions/answers.MediaResponse"
                         }
                     },
                     "400": {
@@ -2321,7 +2315,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/participants.updateParticipantStatusRequest"
+                            "$ref": "#/definitions/participants.UpdateParticipantStatusRequest"
                         }
                     }
                 ],
@@ -2329,7 +2323,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/participants.participantResponse"
+                            "$ref": "#/definitions/participants.ParticipantResponse"
                         }
                     },
                     "400": {
@@ -2393,6 +2387,13 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Questionnaire ID",
+                        "name": "questionnaireID",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2401,8 +2402,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "additionalProperties": true
+                                "$ref": "#/definitions/instruments.QuestionnaireResponse"
                             }
                         }
                     },
@@ -2466,8 +2466,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.CreateQuestionnaireRequest"
                         }
                     }
                 ],
@@ -2475,8 +2474,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.QuestionnaireResponse"
                         }
                     },
                     "400": {
@@ -2553,8 +2551,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.QuestionnaireResponse"
                         }
                     },
                     "400": {
@@ -2668,7 +2665,10 @@ const docTemplate = `{
                 }
             }
         },
-        "answers.createMediaRequest": {
+        "answers.CreateAnswerRequest": {
+            "type": "object"
+        },
+        "answers.CreateMediaRequest": {
             "type": "object",
             "required": [
                 "file_key",
@@ -2696,7 +2696,7 @@ const docTemplate = `{
                 }
             }
         },
-        "answers.mediaResponse": {
+        "answers.MediaResponse": {
             "type": "object",
             "properties": {
                 "answer_id": {
@@ -2860,6 +2860,124 @@ const docTemplate = `{
                 }
             }
         },
+        "instruments.CreateInstrumentRequest": {
+            "type": "object",
+            "required": [
+                "kind",
+                "name"
+            ],
+            "properties": {
+                "config": {
+                    "type": "object"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 160,
+                    "minLength": 2
+                }
+            }
+        },
+        "instruments.CreateQuestionnaireRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "schema"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 160,
+                    "minLength": 2
+                },
+                "schema": {
+                    "type": "object"
+                }
+            }
+        },
+        "instruments.InstrumentResponse": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "type": "object"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "instruments.QuestionnaireResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "schema": {
+                    "type": "object"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "instruments.UpdateInstrumentRequest": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "type": "object"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "media.PresignUploadRequest": {
             "type": "object",
             "required": [
@@ -2945,7 +3063,7 @@ const docTemplate = `{
                 }
             }
         },
-        "participants.createParticipantRequest": {
+        "participants.CreateParticipantRequest": {
             "type": "object",
             "required": [
                 "display_name"
@@ -2961,7 +3079,7 @@ const docTemplate = `{
                 }
             }
         },
-        "participants.participantResponse": {
+        "participants.ParticipantResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2990,7 +3108,7 @@ const docTemplate = `{
                 }
             }
         },
-        "participants.updateParticipantStatusRequest": {
+        "participants.UpdateParticipantStatusRequest": {
             "type": "object",
             "required": [
                 "status"
@@ -3001,7 +3119,7 @@ const docTemplate = `{
                 }
             }
         },
-        "projects.createProjectRequest": {
+        "projects.CreateProjectRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -3017,7 +3135,7 @@ const docTemplate = `{
                 }
             }
         },
-        "projects.inviteMemberRequest": {
+        "projects.InviteMemberRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -3036,7 +3154,7 @@ const docTemplate = `{
                 }
             }
         },
-        "projects.projectInvitationResponse": {
+        "projects.ProjectInvitationResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3062,7 +3180,7 @@ const docTemplate = `{
                 }
             }
         },
-        "projects.projectMemberResponse": {
+        "projects.ProjectMemberResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3088,7 +3206,7 @@ const docTemplate = `{
                 }
             }
         },
-        "projects.projectResponse": {
+        "projects.ProjectResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3114,7 +3232,7 @@ const docTemplate = `{
                 }
             }
         },
-        "projects.updateProjectRequest": {
+        "projects.UpdateProjectRequest": {
             "type": "object",
             "properties": {
                 "description": {

@@ -2,7 +2,6 @@ package answers
 
 import (
 	"context"
-	"encoding/json"
 	"log/slog"
 	"net/http"
 	"time"
@@ -23,108 +22,6 @@ func NewAnswerHandler(uc domain.AnswerUsecase, logger *slog.Logger) *AnswerHandl
 	return &AnswerHandler{uc: uc, logger: logger}
 }
 
-type createAnswerRequest struct {
-	ParticipantID     string          `json:"participant_id" binding:"required"`
-	InstrumentID      *string         `json:"instrument_id"`
-	QuestionnaireID   *string         `json:"questionnaire_id"`
-	QuestionKey       string          `json:"question_key" binding:"required"`
-	AnswerType        string          `json:"answer_type" binding:"required"`
-	Value             json.RawMessage `json:"value" binding:"required"`
-	ClientGeneratedID *string         `json:"client_generated_id"`
-}
-
-type createMediaRequest struct {
-	AnswerID        *string `json:"answer_id"`
-	FileKey         string  `json:"file_key" binding:"required"`
-	MimeType        string  `json:"mime_type" binding:"required"`
-	SizeBytes       int64   `json:"size_bytes" binding:"required"`
-	DurationSeconds *int    `json:"duration_seconds"`
-	Checksum        *string `json:"checksum"`
-}
-
-type answerResponse struct {
-	ID                string          `json:"id"`
-	ProjectID         string          `json:"project_id"`
-	ParticipantID     string          `json:"participant_id"`
-	InstrumentID      *string         `json:"instrument_id,omitempty"`
-	QuestionnaireID   *string         `json:"questionnaire_id,omitempty"`
-	QuestionKey       string          `json:"question_key"`
-	AnswerType        string          `json:"answer_type"`
-	Value             json.RawMessage `json:"value"`
-	Status            string          `json:"status"`
-	SyncStatus        string          `json:"sync_status"`
-	ClientGeneratedID *string         `json:"client_generated_id,omitempty"`
-	CreatedAt         time.Time       `json:"created_at"`
-	UpdatedAt         time.Time       `json:"updated_at"`
-}
-
-type mediaResponse struct {
-	ID              string    `json:"id"`
-	ProjectID       string    `json:"project_id"`
-	ParticipantID   string    `json:"participant_id"`
-	AnswerID        *string   `json:"answer_id,omitempty"`
-	FileKey         string    `json:"file_key"`
-	MimeType        string    `json:"mime_type"`
-	SizeBytes       int64     `json:"size_bytes"`
-	DurationSeconds *int      `json:"duration_seconds,omitempty"`
-	Checksum        *string   `json:"checksum,omitempty"`
-	Status          string    `json:"status"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
-}
-
-func toAnswerResponse(a *domain.AnswerRecord) answerResponse {
-	resp := answerResponse{
-		ID:            a.ID.String(),
-		ProjectID:     a.ProjectID.String(),
-		ParticipantID: a.ParticipantID.String(),
-		QuestionKey:   a.QuestionKey,
-		AnswerType:    string(a.AnswerType),
-		Value:         a.Value,
-		Status:        string(a.Status),
-		SyncStatus:    string(a.SyncStatus),
-		CreatedAt:     a.CreatedAt,
-		UpdatedAt:     a.UpdatedAt,
-	}
-	if a.InstrumentID != nil {
-		v := a.InstrumentID.String()
-		resp.InstrumentID = &v
-	}
-	if a.QuestionnaireID != nil {
-		v := a.QuestionnaireID.String()
-		resp.QuestionnaireID = &v
-	}
-	if a.ClientGeneratedID != nil {
-		resp.ClientGeneratedID = a.ClientGeneratedID
-	}
-	return resp
-}
-
-func toMediaResponse(m *domain.MediaFile) mediaResponse {
-	resp := mediaResponse{
-		ID:            m.ID.String(),
-		ProjectID:     m.ProjectID.String(),
-		ParticipantID: m.ParticipantID.String(),
-		FileKey:       m.FileKey,
-		MimeType:      m.MimeType,
-		SizeBytes:     m.SizeBytes,
-		Status:        m.Status,
-		CreatedAt:     m.CreatedAt,
-		UpdatedAt:     m.UpdatedAt,
-	}
-	if m.AnswerID != nil {
-		v := m.AnswerID.String()
-		resp.AnswerID = &v
-	}
-	if m.DurationSeconds != nil {
-		resp.DurationSeconds = m.DurationSeconds
-	}
-	if m.Checksum != nil {
-		resp.Checksum = m.Checksum
-	}
-	return resp
-}
-
 // CreateAnswer godoc
 // @Summary		Create answer
 // @Description	Create a participant answer record in a project
@@ -132,7 +29,7 @@ func toMediaResponse(m *domain.MediaFile) mediaResponse {
 // @Accept		json
 // @Produce		json
 // @Param		id path string true "Project ID"
-// @Param		body body map[string]interface{} true "Answer payload"
+// @Param		body body CreateAnswerRequest true "Answer payload"
 // @Success		201 {object} map[string]interface{}
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
@@ -141,7 +38,7 @@ func toMediaResponse(m *domain.MediaFile) mediaResponse {
 // @Router		/projects/{id}/answers [post]
 // @Security	BearerAuth
 func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
-	var req createAnswerRequest
+	var req CreateAnswerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid request"})
 		return
@@ -190,7 +87,7 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusCreated, toAnswerResponse(answer))
+	c.JSON(http.StatusCreated, ToAnswerResponse(answer))
 }
 
 // ListAnswers godoc
@@ -234,9 +131,9 @@ func (h *AnswerHandler) ListAnswers(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	resp := make([]answerResponse, 0, len(answers))
+	resp := make([]AnswerResponse, 0, len(answers))
 	for _, a := range answers {
-		resp = append(resp, toAnswerResponse(&a))
+		resp = append(resp, ToAnswerResponse(&a))
 	}
 	c.JSON(http.StatusOK, resp)
 }
@@ -249,8 +146,8 @@ func (h *AnswerHandler) ListAnswers(c *gin.Context) {
 // @Produce		json
 // @Param		id path string true "Project ID"
 // @Param		participantID path string true "Participant ID"
-// @Param		body body createMediaRequest true "Media payload"
-// @Success		201 {object} mediaResponse
+// @Param		body body CreateMediaRequest true "Media payload"
+// @Success		201 {object} MediaResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		422 {object} map[string]string
@@ -258,7 +155,7 @@ func (h *AnswerHandler) ListAnswers(c *gin.Context) {
 // @Router		/projects/{id}/participants/{participantID}/media [post]
 // @Security	BearerAuth
 func (h *AnswerHandler) CreateMedia(c *gin.Context) {
-	var req createMediaRequest
+	var req CreateMediaRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid request"})
 		return
@@ -299,7 +196,7 @@ func (h *AnswerHandler) CreateMedia(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusCreated, toMediaResponse(media))
+	c.JSON(http.StatusCreated, ToMediaResponse(media))
 }
 
 func RegisterAnswerRoutes(rg *gin.RouterGroup, h *AnswerHandler, authMiddleware gin.HandlerFunc) {

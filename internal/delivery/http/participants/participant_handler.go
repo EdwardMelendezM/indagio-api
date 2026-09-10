@@ -22,39 +22,6 @@ func NewParticipantHandler(uc domain.ParticipantUsecase, logger *slog.Logger) *P
 	return &ParticipantHandler{uc: uc, logger: logger}
 }
 
-type createParticipantRequest struct {
-	DisplayName        string `json:"display_name" binding:"required,min=2,max=160"`
-	ExternalIdentifier string `json:"external_identifier"`
-}
-
-type updateParticipantStatusRequest struct {
-	Status string `json:"status" binding:"required"`
-}
-
-type participantResponse struct {
-	ID                 string    `json:"id"`
-	ProjectID          string    `json:"project_id"`
-	Code               string    `json:"code"`
-	DisplayName        string    `json:"display_name"`
-	ExternalIdentifier string    `json:"external_identifier,omitempty"`
-	Status             string    `json:"status"`
-	CreatedAt          time.Time `json:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at"`
-}
-
-func toParticipantResponse(p *domain.Participant) participantResponse {
-	return participantResponse{
-		ID:                 p.ID.String(),
-		ProjectID:          p.ProjectID.String(),
-		Code:               p.Code,
-		DisplayName:        p.DisplayName,
-		ExternalIdentifier: p.ExternalIdentifier,
-		Status:             string(p.Status),
-		CreatedAt:          p.CreatedAt,
-		UpdatedAt:          p.UpdatedAt,
-	}
-}
-
 // Create godoc
 // @Summary		Create participant
 // @Description	Create a participant in a project
@@ -62,8 +29,8 @@ func toParticipantResponse(p *domain.Participant) participantResponse {
 // @Accept		json
 // @Produce		json
 // @Param		id path string true "Project ID"
-// @Param		body body createParticipantRequest true "Participant payload"
-// @Success		201 {object} participantResponse
+// @Param		body body CreateParticipantRequest true "Participant payload"
+// @Success		201 {object} ParticipantResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		422 {object} map[string]string
@@ -71,7 +38,7 @@ func toParticipantResponse(p *domain.Participant) participantResponse {
 // @Router		/projects/{id}/participants [post]
 // @Security	BearerAuth
 func (h *ParticipantHandler) Create(c *gin.Context) {
-	var req createParticipantRequest
+	var req CreateParticipantRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid request"})
 		return
@@ -101,7 +68,7 @@ func (h *ParticipantHandler) Create(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusCreated, toParticipantResponse(participant))
+	c.JSON(http.StatusCreated, ToParticipantResponse(participant))
 }
 
 // List godoc
@@ -110,7 +77,7 @@ func (h *ParticipantHandler) Create(c *gin.Context) {
 // @Tags		Participants
 // @Produce		json
 // @Param		id path string true "Project ID"
-// @Success		200 {array} participantResponse
+// @Success		200 {array} ParticipantResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		500 {object} map[string]string
@@ -141,9 +108,9 @@ func (h *ParticipantHandler) List(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	resp := make([]participantResponse, 0, len(participants))
+	resp := make([]ParticipantResponse, 0, len(participants))
 	for _, p := range participants {
-		resp = append(resp, toParticipantResponse(&p))
+		resp = append(resp, ToParticipantResponse(&p))
 	}
 	c.JSON(http.StatusOK, resp)
 }
@@ -155,7 +122,7 @@ func (h *ParticipantHandler) List(c *gin.Context) {
 // @Produce		json
 // @Param		id path string true "Project ID"
 // @Param		code path string true "Participant code"
-// @Success		200 {object} participantResponse
+// @Success		200 {object} ParticipantResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		404 {object} map[string]string
@@ -187,7 +154,7 @@ func (h *ParticipantHandler) GetByCode(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusOK, toParticipantResponse(participant))
+	c.JSON(http.StatusOK, ToParticipantResponse(participant))
 }
 
 // UpdateStatus godoc
@@ -198,8 +165,8 @@ func (h *ParticipantHandler) GetByCode(c *gin.Context) {
 // @Produce		json
 // @Param		id path string true "Project ID"
 // @Param		participantID path string true "Participant ID"
-// @Param		body body updateParticipantStatusRequest true "Status payload"
-// @Success		200 {object} participantResponse
+// @Param		body body UpdateParticipantStatusRequest true "Status payload"
+// @Success		200 {object} ParticipantResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		422 {object} map[string]string
@@ -207,7 +174,7 @@ func (h *ParticipantHandler) GetByCode(c *gin.Context) {
 // @Router		/projects/{id}/participants/{participantID}/status [patch]
 // @Security	BearerAuth
 func (h *ParticipantHandler) UpdateStatus(c *gin.Context) {
-	var req updateParticipantStatusRequest
+	var req UpdateParticipantStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid request"})
 		return
@@ -238,7 +205,7 @@ func (h *ParticipantHandler) UpdateStatus(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusOK, toParticipantResponse(participant))
+	c.JSON(http.StatusOK, ToParticipantResponse(participant))
 }
 
 func RegisterParticipantRoutes(rg *gin.RouterGroup, h *ParticipantHandler, authMiddleware gin.HandlerFunc) {

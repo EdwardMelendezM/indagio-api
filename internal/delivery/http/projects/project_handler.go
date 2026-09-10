@@ -23,104 +23,21 @@ func NewProjectHandler(uc domain.ProjectUsecase, logger *slog.Logger) *ProjectHa
 	return &ProjectHandler{uc: uc, logger: logger}
 }
 
-type createProjectRequest struct {
-	Name        string `json:"name" binding:"required,min=2,max=160"`
-	Description string `json:"description"`
-}
-
-type updateProjectRequest struct {
-	Name        *string `json:"name"`
-	Description *string `json:"description"`
-	Status      *string `json:"status"`
-}
-
-type inviteMemberRequest struct {
-	Email     string    `json:"email" binding:"required,email"`
-	Role      string    `json:"role" binding:"required"`
-	ExpiresAt time.Time `json:"expires_at" binding:"required"`
-}
-
-type projectResponse struct {
-	ID          string    `json:"id"`
-	OwnerID     string    `json:"owner_id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-}
-
-type projectMemberResponse struct {
-	ID        string    `json:"id"`
-	ProjectID string    `json:"project_id"`
-	UserID    string    `json:"user_id"`
-	Role      string    `json:"role"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-type projectInvitationResponse struct {
-	ID        string    `json:"id"`
-	ProjectID string    `json:"project_id"`
-	Email     string    `json:"email"`
-	Role      string    `json:"role"`
-	Status    string    `json:"status"`
-	ExpiresAt time.Time `json:"expires_at"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-func toProjectResponse(p *domain.Project) projectResponse {
-	return projectResponse{
-		ID:          p.ID.String(),
-		OwnerID:     p.OwnerID.String(),
-		Name:        p.Name,
-		Description: p.Description,
-		Status:      string(p.Status),
-		CreatedAt:   p.CreatedAt,
-		UpdatedAt:   p.UpdatedAt,
-	}
-}
-
-func toProjectMemberResponse(m domain.ProjectMember) projectMemberResponse {
-	return projectMemberResponse{
-		ID:        m.ID.String(),
-		ProjectID: m.ProjectID.String(),
-		UserID:    m.UserID.String(),
-		Role:      string(m.Role),
-		Status:    m.Status,
-		CreatedAt: m.CreatedAt,
-		UpdatedAt: m.UpdatedAt,
-	}
-}
-
-func toProjectInvitationResponse(i *domain.ProjectInvitation) projectInvitationResponse {
-	return projectInvitationResponse{
-		ID:        i.ID.String(),
-		ProjectID: i.ProjectID.String(),
-		Email:     i.Email,
-		Role:      string(i.Role),
-		Status:    i.Status,
-		ExpiresAt: i.ExpiresAt,
-		CreatedAt: i.CreatedAt,
-	}
-}
-
 // Create godoc
 // @Summary		Create project
 // @Description	Create a new project owned by the authenticated user
 // @Tags		Projects
 // @Accept		json
 // @Produce		json
-// @Param		body body createProjectRequest true "Project payload"
-// @Success		201 {object} projectResponse
+// @Param		body body CreateProjectRequest true "Project payload"
+// @Success		201 {object} ProjectResponse
 // @Failure		401 {object} map[string]string
 // @Failure		422 {object} map[string]string
 // @Failure		500 {object} map[string]string
 // @Router		/projects [post]
 // @Security	BearerAuth
 func (h *ProjectHandler) Create(c *gin.Context) {
-	var req createProjectRequest
+	var req CreateProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid request"})
 		return
@@ -145,7 +62,7 @@ func (h *ProjectHandler) Create(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusCreated, toProjectResponse(project))
+	c.JSON(http.StatusCreated, ToProjectResponse(project))
 }
 
 // List godoc
@@ -154,7 +71,7 @@ func (h *ProjectHandler) Create(c *gin.Context) {
 // @Tags		Projects
 // @Produce		json
 // @Param		status query string false "Filter by project status"
-// @Success		200 {array} projectResponse
+// @Success		200 {array} ProjectResponse
 // @Failure		401 {object} map[string]string
 // @Failure		500 {object} map[string]string
 // @Router		/projects [get]
@@ -185,9 +102,9 @@ func (h *ProjectHandler) List(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	resp := make([]projectResponse, 0, len(projects))
+	resp := make([]ProjectResponse, 0, len(projects))
 	for _, p := range projects {
-		resp = append(resp, toProjectResponse(&p))
+		resp = append(resp, ToProjectResponse(&p))
 	}
 	c.JSON(http.StatusOK, resp)
 }
@@ -198,7 +115,7 @@ func (h *ProjectHandler) List(c *gin.Context) {
 // @Tags		Projects
 // @Produce		json
 // @Param		id path string true "Project ID"
-// @Success		200 {object} projectResponse
+// @Success		200 {object} ProjectResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		404 {object} map[string]string
@@ -231,7 +148,7 @@ func (h *ProjectHandler) GetByID(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusOK, toProjectResponse(project))
+	c.JSON(http.StatusOK, ToProjectResponse(project))
 }
 
 // Update godoc
@@ -241,8 +158,8 @@ func (h *ProjectHandler) GetByID(c *gin.Context) {
 // @Accept		json
 // @Produce		json
 // @Param		id path string true "Project ID"
-// @Param		body body updateProjectRequest true "Project patch payload"
-// @Success		200 {object} projectResponse
+// @Param		body body UpdateProjectRequest true "Project patch payload"
+// @Success		200 {object} ProjectResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		422 {object} map[string]string
@@ -250,7 +167,7 @@ func (h *ProjectHandler) GetByID(c *gin.Context) {
 // @Router		/projects/{id} [patch]
 // @Security	BearerAuth
 func (h *ProjectHandler) Update(c *gin.Context) {
-	var req updateProjectRequest
+	var req UpdateProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid request"})
 		return
@@ -287,7 +204,7 @@ func (h *ProjectHandler) Update(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusOK, toProjectResponse(project))
+	c.JSON(http.StatusOK, ToProjectResponse(project))
 }
 
 // Archive godoc
@@ -375,8 +292,8 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 // @Accept		json
 // @Produce		json
 // @Param		id path string true "Project ID"
-// @Param		body body inviteMemberRequest true "Invitation payload"
-// @Success		201 {object} projectInvitationResponse
+// @Param		body body InviteMemberRequest true "Invitation payload"
+// @Success		201 {object} ProjectInvitationResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		422 {object} map[string]string
@@ -384,7 +301,7 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 // @Router		/projects/{id}/members/invite [post]
 // @Security	BearerAuth
 func (h *ProjectHandler) InviteMember(c *gin.Context) {
-	var req inviteMemberRequest
+	var req InviteMemberRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid request"})
 		return
@@ -415,7 +332,7 @@ func (h *ProjectHandler) InviteMember(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	c.JSON(http.StatusCreated, toProjectInvitationResponse(invitation))
+	c.JSON(http.StatusCreated, ToProjectInvitationResponse(invitation))
 }
 
 // Members godoc
@@ -424,7 +341,7 @@ func (h *ProjectHandler) InviteMember(c *gin.Context) {
 // @Tags		Projects
 // @Produce		json
 // @Param		id path string true "Project ID"
-// @Success		200 {array} projectMemberResponse
+// @Success		200 {array} ProjectMemberResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		500 {object} map[string]string
@@ -455,9 +372,9 @@ func (h *ProjectHandler) Members(c *gin.Context) {
 		utils.HandleError(c, err, h.logger)
 		return
 	}
-	resp := make([]projectMemberResponse, 0, len(members))
+	resp := make([]ProjectMemberResponse, 0, len(members))
 	for _, member := range members {
-		resp = append(resp, toProjectMemberResponse(member))
+		resp = append(resp, ToProjectMemberResponse(member))
 	}
 	c.JSON(http.StatusOK, resp)
 }

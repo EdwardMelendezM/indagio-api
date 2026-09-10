@@ -45,7 +45,9 @@ definitions:
     - code
     - email
     type: object
-  answers.createMediaRequest:
+  answers.CreateAnswerRequest:
+    type: object
+  answers.CreateMediaRequest:
     properties:
       answer_id:
         type: string
@@ -64,7 +66,7 @@ definitions:
     - mime_type
     - size_bytes
     type: object
-  answers.mediaResponse:
+  answers.MediaResponse:
     properties:
       answer_id:
         type: string
@@ -174,6 +176,85 @@ definitions:
     - code
     - email
     type: object
+  instruments.CreateInstrumentRequest:
+    properties:
+      config:
+        type: object
+      kind:
+        type: string
+      name:
+        maxLength: 160
+        minLength: 2
+        type: string
+    required:
+    - kind
+    - name
+    type: object
+  instruments.CreateQuestionnaireRequest:
+    properties:
+      name:
+        maxLength: 160
+        minLength: 2
+        type: string
+      schema:
+        type: object
+    required:
+    - name
+    - schema
+    type: object
+  instruments.InstrumentResponse:
+    properties:
+      config:
+        type: object
+      created_at:
+        type: string
+      created_by:
+        type: string
+      id:
+        type: string
+      kind:
+        type: string
+      name:
+        type: string
+      project_id:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+      version:
+        type: integer
+    type: object
+  instruments.QuestionnaireResponse:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      project_id:
+        type: string
+      schema:
+        type: object
+      status:
+        type: string
+      updated_at:
+        type: string
+      version:
+        type: integer
+    type: object
+  instruments.UpdateInstrumentRequest:
+    properties:
+      config:
+        type: object
+      name:
+        type: string
+      status:
+        type: string
+    type: object
   media.PresignUploadRequest:
     properties:
       content_type:
@@ -236,7 +317,7 @@ definitions:
         description: URL PUT firmada para R2
         type: string
     type: object
-  participants.createParticipantRequest:
+  participants.CreateParticipantRequest:
     properties:
       display_name:
         maxLength: 160
@@ -247,7 +328,7 @@ definitions:
     required:
     - display_name
     type: object
-  participants.participantResponse:
+  participants.ParticipantResponse:
     properties:
       code:
         type: string
@@ -266,14 +347,14 @@ definitions:
       updated_at:
         type: string
     type: object
-  participants.updateParticipantStatusRequest:
+  participants.UpdateParticipantStatusRequest:
     properties:
       status:
         type: string
     required:
     - status
     type: object
-  projects.createProjectRequest:
+  projects.CreateProjectRequest:
     properties:
       description:
         type: string
@@ -284,7 +365,7 @@ definitions:
     required:
     - name
     type: object
-  projects.inviteMemberRequest:
+  projects.InviteMemberRequest:
     properties:
       email:
         type: string
@@ -297,7 +378,7 @@ definitions:
     - expires_at
     - role
     type: object
-  projects.projectInvitationResponse:
+  projects.ProjectInvitationResponse:
     properties:
       created_at:
         type: string
@@ -314,7 +395,7 @@ definitions:
       status:
         type: string
     type: object
-  projects.projectMemberResponse:
+  projects.ProjectMemberResponse:
     properties:
       created_at:
         type: string
@@ -331,7 +412,7 @@ definitions:
       user_id:
         type: string
     type: object
-  projects.projectResponse:
+  projects.ProjectResponse:
     properties:
       created_at:
         type: string
@@ -348,7 +429,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  projects.updateProjectRequest:
+  projects.UpdateProjectRequest:
     properties:
       description:
         type: string
@@ -1081,7 +1162,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/projects.projectResponse'
+              $ref: '#/definitions/projects.ProjectResponse'
             type: array
         "401":
           description: Unauthorized
@@ -1110,14 +1191,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/projects.createProjectRequest'
+          $ref: '#/definitions/projects.CreateProjectRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/projects.projectResponse'
+            $ref: '#/definitions/projects.ProjectResponse'
         "401":
           description: Unauthorized
           schema:
@@ -1194,7 +1275,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/projects.projectResponse'
+            $ref: '#/definitions/projects.ProjectResponse'
         "400":
           description: Bad Request
           schema:
@@ -1239,14 +1320,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/projects.updateProjectRequest'
+          $ref: '#/definitions/projects.UpdateProjectRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/projects.projectResponse'
+            $ref: '#/definitions/projects.ProjectResponse'
         "400":
           description: Bad Request
           schema:
@@ -1292,8 +1373,7 @@ paths:
         name: body
         required: true
         schema:
-          additionalProperties: true
-          type: object
+          $ref: '#/definitions/answers.CreateAnswerRequest'
       produces:
       - application/json
       responses:
@@ -1388,8 +1468,7 @@ paths:
           description: OK
           schema:
             items:
-              additionalProperties: true
-              type: object
+              $ref: '#/definitions/instruments.InstrumentResponse'
             type: array
         "400":
           description: Bad Request
@@ -1429,16 +1508,14 @@ paths:
         name: body
         required: true
         schema:
-          additionalProperties: true
-          type: object
+          $ref: '#/definitions/instruments.CreateInstrumentRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/instruments.InstrumentResponse'
         "400":
           description: Bad Request
           schema:
@@ -1489,16 +1566,14 @@ paths:
         name: body
         required: true
         schema:
-          additionalProperties: true
-          type: object
+          $ref: '#/definitions/instruments.UpdateInstrumentRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/instruments.InstrumentResponse'
         "400":
           description: Bad Request
           schema:
@@ -1544,7 +1619,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/projects.projectMemberResponse'
+              $ref: '#/definitions/projects.ProjectMemberResponse'
             type: array
         "400":
           description: Bad Request
@@ -1585,14 +1660,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/projects.inviteMemberRequest'
+          $ref: '#/definitions/projects.InviteMemberRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/projects.projectInvitationResponse'
+            $ref: '#/definitions/projects.ProjectInvitationResponse'
         "400":
           description: Bad Request
           schema:
@@ -1638,7 +1713,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/participants.participantResponse'
+              $ref: '#/definitions/participants.ParticipantResponse'
             type: array
         "400":
           description: Bad Request
@@ -1678,14 +1753,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/participants.createParticipantRequest'
+          $ref: '#/definitions/participants.CreateParticipantRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/participants.participantResponse'
+            $ref: '#/definitions/participants.ParticipantResponse'
         "400":
           description: Bad Request
           schema:
@@ -1783,14 +1858,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/answers.createMediaRequest'
+          $ref: '#/definitions/answers.CreateMediaRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/answers.mediaResponse'
+            $ref: '#/definitions/answers.MediaResponse'
         "400":
           description: Bad Request
           schema:
@@ -1841,14 +1916,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/participants.updateParticipantStatusRequest'
+          $ref: '#/definitions/participants.UpdateParticipantStatusRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/participants.participantResponse'
+            $ref: '#/definitions/participants.ParticipantResponse'
         "400":
           description: Bad Request
           schema:
@@ -1898,7 +1973,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/participants.participantResponse'
+            $ref: '#/definitions/participants.ParticipantResponse'
         "400":
           description: Bad Request
           schema:
@@ -1937,6 +2012,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: Questionnaire ID
+        in: path
+        name: questionnaireID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1944,8 +2024,7 @@ paths:
           description: OK
           schema:
             items:
-              additionalProperties: true
-              type: object
+              $ref: '#/definitions/instruments.QuestionnaireResponse'
             type: array
         "400":
           description: Bad Request
@@ -1985,16 +2064,14 @@ paths:
         name: body
         required: true
         schema:
-          additionalProperties: true
-          type: object
+          $ref: '#/definitions/instruments.CreateQuestionnaireRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/instruments.QuestionnaireResponse'
         "400":
           description: Bad Request
           schema:
@@ -2044,8 +2121,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/instruments.QuestionnaireResponse'
         "400":
           description: Bad Request
           schema:

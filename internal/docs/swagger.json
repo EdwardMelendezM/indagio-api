@@ -1068,7 +1068,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/projects.projectResponse"
+                                "$ref": "#/definitions/projects.ProjectResponse"
                             }
                         }
                     },
@@ -1116,7 +1116,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/projects.createProjectRequest"
+                            "$ref": "#/definitions/projects.CreateProjectRequest"
                         }
                     }
                 ],
@@ -1124,7 +1124,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/projects.projectResponse"
+                            "$ref": "#/definitions/projects.ProjectResponse"
                         }
                     },
                     "401": {
@@ -1185,7 +1185,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/projects.projectResponse"
+                            "$ref": "#/definitions/projects.ProjectResponse"
                         }
                     },
                     "400": {
@@ -1316,7 +1316,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/projects.updateProjectRequest"
+                            "$ref": "#/definitions/projects.UpdateProjectRequest"
                         }
                     }
                 ],
@@ -1324,7 +1324,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/projects.projectResponse"
+                            "$ref": "#/definitions/projects.ProjectResponse"
                         }
                     },
                     "400": {
@@ -1398,8 +1398,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/answers.CreateAnswerRequest"
                         }
                     }
                 ],
@@ -1544,8 +1543,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "additionalProperties": true
+                                "$ref": "#/definitions/instruments.InstrumentResponse"
                             }
                         }
                     },
@@ -1609,8 +1607,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.CreateInstrumentRequest"
                         }
                     }
                 ],
@@ -1618,8 +1615,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.InstrumentResponse"
                         }
                     },
                     "400": {
@@ -1700,8 +1696,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.UpdateInstrumentRequest"
                         }
                     }
                 ],
@@ -1709,8 +1704,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.InstrumentResponse"
                         }
                     },
                     "400": {
@@ -1782,7 +1776,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/projects.projectMemberResponse"
+                                "$ref": "#/definitions/projects.ProjectMemberResponse"
                             }
                         }
                     },
@@ -1848,7 +1842,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/projects.inviteMemberRequest"
+                            "$ref": "#/definitions/projects.InviteMemberRequest"
                         }
                     }
                 ],
@@ -1856,7 +1850,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/projects.projectInvitationResponse"
+                            "$ref": "#/definitions/projects.ProjectInvitationResponse"
                         }
                     },
                     "400": {
@@ -1928,7 +1922,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/participants.participantResponse"
+                                "$ref": "#/definitions/participants.ParticipantResponse"
                             }
                         }
                     },
@@ -1992,7 +1986,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/participants.createParticipantRequest"
+                            "$ref": "#/definitions/participants.CreateParticipantRequest"
                         }
                     }
                 ],
@@ -2000,7 +1994,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/participants.participantResponse"
+                            "$ref": "#/definitions/participants.ParticipantResponse"
                         }
                     },
                     "400": {
@@ -2077,7 +2071,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/participants.participantResponse"
+                            "$ref": "#/definitions/participants.ParticipantResponse"
                         }
                     },
                     "400": {
@@ -2230,7 +2224,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/answers.createMediaRequest"
+                            "$ref": "#/definitions/answers.CreateMediaRequest"
                         }
                     }
                 ],
@@ -2238,7 +2232,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/answers.mediaResponse"
+                            "$ref": "#/definitions/answers.MediaResponse"
                         }
                     },
                     "400": {
@@ -2319,7 +2313,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/participants.updateParticipantStatusRequest"
+                            "$ref": "#/definitions/participants.UpdateParticipantStatusRequest"
                         }
                     }
                 ],
@@ -2327,7 +2321,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/participants.participantResponse"
+                            "$ref": "#/definitions/participants.ParticipantResponse"
                         }
                     },
                     "400": {
@@ -2391,6 +2385,13 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Questionnaire ID",
+                        "name": "questionnaireID",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2399,8 +2400,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "additionalProperties": true
+                                "$ref": "#/definitions/instruments.QuestionnaireResponse"
                             }
                         }
                     },
@@ -2464,8 +2464,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.CreateQuestionnaireRequest"
                         }
                     }
                 ],
@@ -2473,8 +2472,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.QuestionnaireResponse"
                         }
                     },
                     "400": {
@@ -2551,8 +2549,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/instruments.QuestionnaireResponse"
                         }
                     },
                     "400": {
@@ -2666,7 +2663,10 @@
                 }
             }
         },
-        "answers.createMediaRequest": {
+        "answers.CreateAnswerRequest": {
+            "type": "object"
+        },
+        "answers.CreateMediaRequest": {
             "type": "object",
             "required": [
                 "file_key",
@@ -2694,7 +2694,7 @@
                 }
             }
         },
-        "answers.mediaResponse": {
+        "answers.MediaResponse": {
             "type": "object",
             "properties": {
                 "answer_id": {
@@ -2858,6 +2858,124 @@
                 }
             }
         },
+        "instruments.CreateInstrumentRequest": {
+            "type": "object",
+            "required": [
+                "kind",
+                "name"
+            ],
+            "properties": {
+                "config": {
+                    "type": "object"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 160,
+                    "minLength": 2
+                }
+            }
+        },
+        "instruments.CreateQuestionnaireRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "schema"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 160,
+                    "minLength": 2
+                },
+                "schema": {
+                    "type": "object"
+                }
+            }
+        },
+        "instruments.InstrumentResponse": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "type": "object"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "instruments.QuestionnaireResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "schema": {
+                    "type": "object"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "instruments.UpdateInstrumentRequest": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "type": "object"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "media.PresignUploadRequest": {
             "type": "object",
             "required": [
@@ -2943,7 +3061,7 @@
                 }
             }
         },
-        "participants.createParticipantRequest": {
+        "participants.CreateParticipantRequest": {
             "type": "object",
             "required": [
                 "display_name"
@@ -2959,7 +3077,7 @@
                 }
             }
         },
-        "participants.participantResponse": {
+        "participants.ParticipantResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -2988,7 +3106,7 @@
                 }
             }
         },
-        "participants.updateParticipantStatusRequest": {
+        "participants.UpdateParticipantStatusRequest": {
             "type": "object",
             "required": [
                 "status"
@@ -2999,7 +3117,7 @@
                 }
             }
         },
-        "projects.createProjectRequest": {
+        "projects.CreateProjectRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -3015,7 +3133,7 @@
                 }
             }
         },
-        "projects.inviteMemberRequest": {
+        "projects.InviteMemberRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -3034,7 +3152,7 @@
                 }
             }
         },
-        "projects.projectInvitationResponse": {
+        "projects.ProjectInvitationResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3060,7 +3178,7 @@
                 }
             }
         },
-        "projects.projectMemberResponse": {
+        "projects.ProjectMemberResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3086,7 +3204,7 @@
                 }
             }
         },
-        "projects.projectResponse": {
+        "projects.ProjectResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3112,7 +3230,7 @@
                 }
             }
         },
-        "projects.updateProjectRequest": {
+        "projects.UpdateProjectRequest": {
             "type": "object",
             "properties": {
                 "description": {
