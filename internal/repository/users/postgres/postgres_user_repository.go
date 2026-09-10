@@ -44,17 +44,6 @@ func (r *postgresUserRepository) FindByEmail(ctx context.Context, email string) 
 
 func (r *postgresUserRepository) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	var u domain.User
-	var (
-		selectedBorderID sql.NullString
-		// ab.* — nullable because the LEFT JOIN may not match (no
-		// border selected, or the selected border was deactivated).
-		abID       sql.NullString
-		abSlug     sql.NullString
-		abName     sql.NullString
-		abAssetURL sql.NullString
-		abThumbURL sql.NullString
-		abTier     sql.NullString
-	)
 	err := r.db.QueryRowContext(ctx, queryFindUserByID, id).Scan(
 		&u.ID,
 		&u.Name,
@@ -65,38 +54,12 @@ func (r *postgresUserRepository) FindByID(ctx context.Context, id uuid.UUID) (*d
 		&u.Verified,
 		&u.CreatedAt,
 		&u.Blocked,
-		&selectedBorderID,
-		&abID, &abSlug, &abName, &abAssetURL, &abThumbURL, &abTier,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("user %s: %w", id, domain.ErrNotFound)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("query user by id: %w", err)
-	}
-
-	// selected_border_id is the persisted FK — keep it even when the
-	// join doesn't match (e.g. the border was deactivated). The FE
-	// can detect "user has a border but it's currently unavailable"
-	// by checking SelectedBorderID != nil && SelectedBorder == nil.
-	if selectedBorderID.Valid {
-		parsed, err := uuid.Parse(selectedBorderID.String)
-		if err == nil {
-			u.SelectedBorderID = &parsed
-		}
-	}
-	if abID.Valid {
-		parsed, err := uuid.Parse(abID.String)
-		if err == nil {
-			u.SelectedBorder = &domain.AvatarBorder{
-				ID:           parsed,
-				Slug:         abSlug.String,
-				Name:         abName.String,
-				AssetURL:     abAssetURL.String,
-				ThumbnailURL: abThumbURL.String,
-				Tier:         abTier.String,
-			}
-		}
 	}
 	return &u, nil
 }
@@ -266,25 +229,6 @@ func (r *postgresUserRepository) ClearAvatar(ctx context.Context, userID uuid.UU
 		return 0, fmt.Errorf("clear avatar: %w", err)
 	}
 	return ver, nil
-}
-
-// UpdateSelectedBorder sets the user's selected avatar border.
-// borderID == nil clears the selection. Returns domain.ErrNotFound
-// when the user has been soft-deleted (the WHERE deleted_at IS NULL
-// in the query excludes them).
-func (r *postgresUserRepository) UpdateSelectedBorder(ctx context.Context, userID uuid.UUID, borderID *uuid.UUID) error {
-	result, err := r.db.ExecContext(ctx, queryUpdateSelectedBorder, userID, borderID)
-	if err != nil {
-		return fmt.Errorf("update selected border: %w", err)
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("rows affected: %w", err)
-	}
-	if rows == 0 {
-		return fmt.Errorf("user %s: %w", userID, domain.ErrNotFound)
-	}
-	return nil
 }
 
 func (r *postgresUserRepository) ListAll(

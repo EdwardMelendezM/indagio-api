@@ -40,6 +40,3 @@ var queryUpdateUserAvatarURL string
 
 //go:embed queries/clear_avatar.sql
 var queryClearUserAvatar string
-
-//go:embed queries/update_selected_border.sql
-var queryUpdateSelectedBorder string

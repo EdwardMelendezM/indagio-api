@@ -17,13 +17,6 @@ type User struct {
 	AvatarVersion int     // Bumped on every avatar change — used as cache-busting query param.
 	CreatedAt     time.Time
 	Blocked       bool
-
-	// SelectedBorderID is the persisted FK to avatar_borders.id.
-	// SelectedBorder is hydrated in any query that LEFT JOINs
-	// avatar_borders (feed queries, /me, /users/:id, etc.). It is
-	// NOT persisted and is not part of the users table.
-	SelectedBorderID *uuid.UUID
-	SelectedBorder   *AvatarBorder
 }
 
 // UserInternal — private view (with password for auth layer only)
@@ -38,12 +31,6 @@ type UserInternal struct {
 	AvatarVersion int
 	CreatedAt     time.Time
 	Blocked       bool
-
-	// SelectedBorderID is read by FindByEmail for the login flow when
-	// we want to enrich the AuthResponse. The internal view is
-	// otherwise unchanged; SelectedBorder is not hydrated here (the
-	// auth path doesn't render the border).
-	SelectedBorderID *uuid.UUID
 }
 
 // Role is a type-safe role representation
@@ -53,15 +40,6 @@ const (
 	RoleStudent   Role = "estudiante"
 	RoleModerator Role = "moderador"
 )
-
-type AvatarBorder struct {
-	ID           uuid.UUID
-	Slug         string
-	Name         string
-	AssetURL     string
-	ThumbnailURL string
-	Tier         string
-}
 
 // Validate user domain invariants
 func (u *User) Validate() error {

@@ -306,24 +306,6 @@ func (_m *UserRepository) ClearAvatar(ctx context.Context, userID uuid.UUID) (in
 	return r0, r1
 }
 
-// UpdateSelectedBorder provides a mock function with given fields: ctx, userID, borderID
-func (_m *UserRepository) UpdateSelectedBorder(ctx context.Context, userID uuid.UUID, borderID *uuid.UUID) error {
-	ret := _m.Called(ctx, userID, borderID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateSelectedBorder")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *uuid.UUID) error); ok {
-		r0 = rf(ctx, userID, borderID)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // NewUserRepository creates a new instance of UserRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewUserRepository(t interface {

@@ -54,21 +54,6 @@ definitions:
       user:
         $ref: '#/definitions/auth.UserResponse'
     type: object
-  auth.BorderDTO:
-    properties:
-      asset_url:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      slug:
-        type: string
-      thumbnail_url:
-        type: string
-      tier:
-        type: string
-    type: object
   auth.ForgotPasswordRequest:
     properties:
       email:
@@ -122,10 +107,6 @@ definitions:
         type: string
       blocked:
         type: boolean
-      border:
-        allOf:
-        - $ref: '#/definitions/auth.BorderDTO'
-        description: nil when no border selected
       created_at:
         type: string
       email:
@@ -213,8 +194,6 @@ definitions:
     properties:
       avatar_url:
         type: string
-      border:
-        $ref: '#/definitions/auth.BorderDTO'
       created_at:
         type: string
       id:
@@ -377,7 +356,7 @@ paths:
     get:
       description: |-
         Returns the safe-to-expose fields of any user (id, name,
-        role, avatar URL, selected border, created_at). Email and
+        role, avatar URL, created_at). Email and
         the internal `blocked` flag are intentionally omitted.
         No authentication required — this is the endpoint the
         frontend calls when rendering someone else's profile page.

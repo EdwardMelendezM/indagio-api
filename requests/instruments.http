@@ -1,10 +1,10 @@
 @host = http://localhost:8080
 @api = {{host}}/api
-@accessToken = your_access_token_here
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODkyNjg3NjgsImlhdCI6MTc4OTAwOTU2OCwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.TGW-H3Mw7HOGUWqLwxWIBvACZgLL4BhvH-22fEcZ_QU
 
-@projectId = 11111111-1111-1111-1111-111111111111
 @instrumentId = 33333333-3333-3333-3333-333333333333
 @questionnaireId = 44444444-4444-4444-4444-444444444444
+@projectId = c2f086da-0d38-407d-9c9b-1b32d6d4ee8b
 
 ### Create instrument
 POST {{api}}/projects/{{projectId}}/instruments

@@ -164,7 +164,7 @@ func RegisterUserRoutes(rg *gin.RouterGroup, h *UserHandler, authMiddleware gin.
 // GetPublicProfile godoc
 // @Summary		Get a user's public profile
 // @Description	Returns the safe-to-expose fields of any user (id, name,
-// @Description	role, avatar URL, selected border, created_at). Email and
+// @Description	role, avatar URL, created_at). Email and
 // @Description	the internal `blocked` flag are intentionally omitted.
 // @Description	No authentication required — this is the endpoint the
 // @Description	frontend calls when rendering someone else's profile page.

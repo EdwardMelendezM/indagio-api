@@ -1,9 +1,9 @@
 @host = http://localhost:8080
 @api = {{host}}/api
-@accessToken = your_access_token_here
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODkyNjg3NjgsImlhdCI6MTc4OTAwOTU2OCwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.TGW-H3Mw7HOGUWqLwxWIBvACZgLL4BhvH-22fEcZ_QU
 
-@projectId = 11111111-1111-1111-1111-111111111111
-@memberEmail = collaborator@example.com
+@projectId = c2f086da-0d38-407d-9c9b-1b32d6d4ee8b
+@memberEmail = 192666@unsaac.edu.peru
 
 ### Create project
 POST {{api}}/projects
@@ -11,8 +11,8 @@ Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-  "name": "Customer Discovery",
-  "description": "Project used to collect participant feedback.",
+  "name": "Depresion, ansiedad y estrés | Proyecto de investigacion 2026-2027",
+  "description": "Depresion, ansiedad y estrés | Proyecto de investigacion 2026-2027",
   "status": "active"
 }
 

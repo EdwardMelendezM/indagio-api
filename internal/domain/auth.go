@@ -24,11 +24,6 @@ type UserRepository interface {
 	UpdateAvatarURL(ctx context.Context, userID uuid.UUID, avatarJSON *string) (int, error)
 	ClearAvatar(ctx context.Context, userID uuid.UUID) (int, error)
 
-	// UpdateSelectedBorder sets the user's selected avatar border.
-	// borderID == nil clears the selection (sets the column to NULL).
-	// Returns domain.ErrNotFound when the user is soft-deleted.
-	UpdateSelectedBorder(ctx context.Context, userID uuid.UUID, borderID *uuid.UUID) error
-
 	// ListAvailable returns verified, non-deleted, non-blocked users (excluding excludeUserID)
 	// that the caller can start a conversation with. An empty search returns all
 	// such users. Returns the requested page plus the total matching count.

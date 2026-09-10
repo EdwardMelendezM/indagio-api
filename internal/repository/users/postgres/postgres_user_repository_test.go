@@ -10,7 +10,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"indagio-api/internal/domain"
 )
@@ -158,19 +157,11 @@ func TestUserRepository_FindByID(t *testing.T) {
 		role := domain.RoleStudent
 		now := time.Now().UTC()
 
-		// After the avatar-borders PR 2, find_by_id.sql returns 16
-		// columns: the original 9 user columns + selected_border_id
-		// (nullable) + the 6-column border row from the LEFT JOIN
-		// (also nullable — the join only matches when the user has
-		// a selected border).
 		rows := sqlmock.NewRows([]string{
 			"id", "name", "email", "role", "avatar_url", "avatar_version",
-			"verified", "created_at", "blocked", "selected_border_id",
-			"border_id", "border_slug", "border_name", "border_asset_url",
-			"border_thumbnail_url", "border_tier",
+			"verified", "created_at", "blocked",
 		}).AddRow(
 			userID, name, email, role, nil, 0, false, now, false,
-			nil, nil, nil, nil, nil, nil, nil,
 		)
 
 		mock.ExpectQuery(queryFindUserByID).
@@ -185,43 +176,6 @@ func TestUserRepository_FindByID(t *testing.T) {
 		assert.Equal(t, userID, user.ID)
 		assert.Equal(t, name, user.Name)
 		assert.Equal(t, email, user.Email)
-		assert.Nil(t, user.SelectedBorderID, "no border in the row → no SelectedBorderID")
-		assert.Nil(t, user.SelectedBorder, "no border in the row → no SelectedBorder")
-		assert.NoError(t, mock.ExpectationsWereMet())
-	})
-
-	t.Run("When find user by ID with selected border hydrates SelectedBorder", func(t *testing.T) {
-		db, mock := setupUserTest(t)
-		defer db.Close()
-
-		userID := uuid.New()
-		borderID := uuid.New()
-		now := time.Now().UTC()
-
-		rows := sqlmock.NewRows([]string{
-			"id", "name", "email", "role", "avatar_url", "avatar_version",
-			"verified", "created_at", "blocked", "selected_border_id",
-			"border_id", "border_slug", "border_name", "border_asset_url",
-			"border_thumbnail_url", "border_tier",
-		}).AddRow(
-			userID, "User", "u@u.com", domain.RoleStudent, nil, 0, false, now, false,
-			borderID.String(), borderID.String(), "condor", "Cóndor",
-			"https://cdn/condor.png", "https://cdn/condor_t.png", "free",
-		)
-
-		mock.ExpectQuery(queryFindUserByID).
-			WithArgs(userID).
-			WillReturnRows(rows)
-
-		repo := NewUserRepository(db)
-		user, err := repo.FindByID(context.Background(), userID)
-		assert.NoError(t, err)
-		require.NotNil(t, user)
-		require.NotNil(t, user.SelectedBorderID)
-		assert.Equal(t, borderID, *user.SelectedBorderID)
-		require.NotNil(t, user.SelectedBorder)
-		assert.Equal(t, "condor", user.SelectedBorder.Slug)
-		assert.Equal(t, "free", user.SelectedBorder.Tier)
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 

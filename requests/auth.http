@@ -5,7 +5,7 @@
 @email = user@example.com
 @password = StrongPassword123!
 @otpCode = 491408
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODkyNjgwMTQsImlhdCI6MTc4OTAwODgxNCwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.jaX9plUQ1nMVmXT7nBn7kv1zEIockMLsiwymBTrKTvg
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODkyNjg3NjgsImlhdCI6MTc4OTAwOTU2OCwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.TGW-H3Mw7HOGUWqLwxWIBvACZgLL4BhvH-22fEcZ_QU
 
 ### Register user
 POST {{api}}/auth/register

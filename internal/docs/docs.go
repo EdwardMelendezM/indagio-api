@@ -295,7 +295,7 @@ const docTemplate = `{
         },
         "/api/users/{id}": {
             "get": {
-                "description": "Returns the safe-to-expose fields of any user (id, name,\nrole, avatar URL, selected border, created_at). Email and\nthe internal ` + "`" + `blocked` + "`" + ` flag are intentionally omitted.\nNo authentication required — this is the endpoint the\nfrontend calls when rendering someone else's profile page.",
+                "description": "Returns the safe-to-expose fields of any user (id, name,\nrole, avatar URL, created_at). Email and\nthe internal ` + "`" + `blocked` + "`" + ` flag are intentionally omitted.\nNo authentication required — this is the endpoint the\nfrontend calls when rendering someone else's profile page.",
                 "produces": [
                     "application/json"
                 ],
@@ -1127,29 +1127,6 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.BorderDTO": {
-            "type": "object",
-            "properties": {
-                "asset_url": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "thumbnail_url": {
-                    "type": "string"
-                },
-                "tier": {
-                    "type": "string"
-                }
-            }
-        },
         "auth.ForgotPasswordRequest": {
             "type": "object",
             "required": [
@@ -1226,14 +1203,6 @@ const docTemplate = `{
                 },
                 "blocked": {
                     "type": "boolean"
-                },
-                "border": {
-                    "description": "nil when no border selected",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/auth.BorderDTO"
-                        }
-                    ]
                 },
                 "created_at": {
                     "type": "string"
@@ -1357,9 +1326,6 @@ const docTemplate = `{
             "properties": {
                 "avatar_url": {
                     "type": "string"
-                },
-                "border": {
-                    "$ref": "#/definitions/auth.BorderDTO"
                 },
                 "created_at": {
                     "type": "string"

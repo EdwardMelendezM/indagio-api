@@ -295,7 +295,7 @@ func (h *AuthHandler) ResetPassword(c *gin.Context) {
 
 // Helpers
 func ToUserResponse(u *domain.User) UserResponse {
-	resp := UserResponse{
+	return UserResponse{
 		ID:        u.ID.String(),
 		Name:      u.Name,
 		Email:     u.Email,
@@ -304,18 +304,6 @@ func ToUserResponse(u *domain.User) UserResponse {
 		AvatarURL: u.AvatarURL,
 		CreatedAt: u.CreatedAt.Format(time.RFC3339),
 	}
-	if u.SelectedBorder != nil {
-		b := u.SelectedBorder
-		resp.Border = &BorderDTO{
-			ID:           b.ID.String(),
-			Slug:         b.Slug,
-			Name:         b.Name,
-			AssetURL:     b.AssetURL,
-			ThumbnailURL: b.ThumbnailURL,
-			Tier:         b.Tier,
-		}
-	}
-	return resp
 }
 
 func RegisterAuthRoutes(rg *gin.RouterGroup, h *AuthHandler, authMiddleware gin.HandlerFunc) {

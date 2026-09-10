@@ -52,38 +52,25 @@ func ToUserResponseList(users []domain.User) []auth.UserResponse {
 //   - blocked — internal moderation state, leaking it would tell an
 //     attacker which accounts are sanctioned.
 //
-// Kept: id, name, role, avatar_url, border, created_at. The shape is
+// Kept: id, name, role, avatar_url, created_at. The shape is
 // stable enough that the FE can render a public profile page from this
 // single response without having to call /auth/me or piece fields
 // together from per-thread author objects.
 type PublicUserResponse struct {
-	ID        string          `json:"id"`
-	Name      string          `json:"name"`
-	Role      string          `json:"role"`
-	AvatarURL *string         `json:"avatar_url"`
-	Border    *auth.BorderDTO `json:"border,omitempty"`
-	CreatedAt string          `json:"created_at"`
+	ID        string  `json:"id"`
+	Name      string  `json:"name"`
+	Role      string  `json:"role"`
+	AvatarURL *string `json:"avatar_url"`
+	CreatedAt string  `json:"created_at"`
 }
 
 // ToPublicUserResponse maps a domain.User to the safe public DTO.
 func ToPublicUserResponse(u *domain.User) PublicUserResponse {
-	resp := PublicUserResponse{
+	return PublicUserResponse{
 		ID:        u.ID.String(),
 		Name:      u.Name,
 		Role:      string(u.Role),
 		AvatarURL: u.AvatarURL,
 		CreatedAt: u.CreatedAt.Format(time.RFC3339),
 	}
-	if u.SelectedBorder != nil {
-		b := u.SelectedBorder
-		resp.Border = &auth.BorderDTO{
-			ID:           b.ID.String(),
-			Slug:         b.Slug,
-			Name:         b.Name,
-			AssetURL:     b.AssetURL,
-			ThumbnailURL: b.ThumbnailURL,
-			Tier:         b.Tier,
-		}
-	}
-	return resp
 }

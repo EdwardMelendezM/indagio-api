@@ -14,7 +14,6 @@ CREATE TABLE users (
                        verified BOOLEAN NOT NULL DEFAULT FALSE,
                        blocked BOOLEAN NOT NULL DEFAULT FALSE,
                        deleted_at TIMESTAMPTZ NULL,
-                       selected_border_id UUID NULL,
                        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
