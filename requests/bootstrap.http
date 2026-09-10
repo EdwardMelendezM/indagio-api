@@ -1,0 +1,8 @@
+@host = http://localhost:8080
+@api = {{host}}/api
+
+### Health check
+GET {{host}}/healthz
+
+### Swagger UI
+GET {{host}}/swagger/index.html

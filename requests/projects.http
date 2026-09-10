@@ -1,0 +1,59 @@
+@host = http://localhost:8080
+@api = {{host}}/api
+@accessToken = your_access_token_here
+
+@projectId = 11111111-1111-1111-1111-111111111111
+@memberEmail = collaborator@example.com
+
+### Create project
+POST {{api}}/projects
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Customer Discovery",
+  "description": "Project used to collect participant feedback.",
+  "status": "active"
+}
+
+### List projects
+GET {{api}}/projects
+Authorization: Bearer {{accessToken}}
+
+### Get project by id
+GET {{api}}/projects/{{projectId}}
+Authorization: Bearer {{accessToken}}
+
+### Update project
+PATCH {{api}}/projects/{{projectId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Customer Discovery v2",
+  "description": "Updated project description.",
+  "status": "active"
+}
+
+### Archive project
+POST {{api}}/projects/{{projectId}}/archive
+Authorization: Bearer {{accessToken}}
+
+### Invite member to project
+POST {{api}}/projects/{{projectId}}/members/invite
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "email": "{{memberEmail}}",
+  "role": "member",
+  "expires_at": "2026-12-31T23:59:59Z"
+}
+
+### List members
+GET {{api}}/projects/{{projectId}}/members
+Authorization: Bearer {{accessToken}}
+
+### Delete project
+DELETE {{api}}/projects/{{projectId}}
+Authorization: Bearer {{accessToken}}

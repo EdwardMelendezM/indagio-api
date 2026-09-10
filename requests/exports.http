@@ -1,0 +1,22 @@
+@host = http://localhost:8080
+@api = {{host}}/api
+@accessToken = your_access_token_here
+
+@projectId = 11111111-1111-1111-1111-111111111111
+
+### Request export
+POST {{api}}/projects/{{projectId}}/exports
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "format": "json",
+  "options": {
+    "include_media": true,
+    "include_deleted": false
+  }
+}
+
+### List exports for project
+GET {{api}}/projects/{{projectId}}/exports
+Authorization: Bearer {{accessToken}}
