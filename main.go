@@ -1,3 +1,23 @@
+// Package main provides the entry point for Indagio Backend API
+//
+// @title			Indagio API
+// @version			1.0
+// @description		API with Clean Architecture
+// @host			localhost:8080
+// @basePath			/
+// @schemes			http https
+//
+// @securityDefinitions.apikey BearerAuth
+// @in				header
+// @name			Authorization
+// @description		Type "Bearer" followed by space and JWT token.
+//
+// @contact.name	Backend Team
+// @contact.email	backend@indagio.com
+// @contact.url		https://github.com/unsaac/indagio-api
+//
+// @license.name	MIT
+// @license.url		https://opensource.org/licenses/MIT
 package main
 
 import (
@@ -13,6 +33,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"indagio-api/internal/config"
 	adminhttp "indagio-api/internal/delivery/http/admin_user"
@@ -26,6 +48,7 @@ import (
 	synchttp "indagio-api/internal/delivery/http/sync"
 	userhttp "indagio-api/internal/delivery/http/user"
 	"indagio-api/internal/delivery/worker"
+	"indagio-api/internal/docs"
 	adminrepo "indagio-api/internal/repository/admin_user/postgres"
 	answerrepo "indagio-api/internal/repository/answers/postgres"
 	exportrepo "indagio-api/internal/repository/exports/postgres"
@@ -51,6 +74,7 @@ import (
 )
 
 func main() {
+	_ = docs.SwaggerInfo
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	cfg, err := config.Load()
@@ -139,6 +163,7 @@ func main() {
 	exporthttp.RegisterExportRoutes(api, exportHandler)
 	adminhttp.RegisterAdminRoutes(api, adminHandler, adminAuthMiddleware)
 
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.GET("/healthz", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})

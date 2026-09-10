@@ -189,6 +189,6 @@ func RegisterParticipantRoutes(rg *gin.RouterGroup, h *ParticipantHandler, authM
 	participants.Use(authMiddleware)
 	participants.POST("", h.Create)
 	participants.GET("", h.List)
-	participants.GET(":code", h.GetByCode)
-	participants.PATCH(":participantID/status", h.UpdateStatus)
+	participants.GET("/code/:code", h.GetByCode)
+	participants.PATCH("/:participantID/status", h.UpdateStatus)
 }
