@@ -2,9 +2,9 @@
 @api = {{host}}/api
 @accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODkyNjg3NjgsImlhdCI6MTc4OTAwOTU2OCwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.TGW-H3Mw7HOGUWqLwxWIBvACZgLL4BhvH-22fEcZ_QU
 
-@instrumentId = 33333333-3333-3333-3333-333333333333
-@questionnaireId = 44444444-4444-4444-4444-444444444444
 @projectId = c2f086da-0d38-407d-9c9b-1b32d6d4ee8b
+@instrumentId = ea35e4ec-499d-49da-a08e-a8758903870a
+@questionnaireId = 9da241b4-c5d2-4e38-bc4f-ea3f1a8fb588
 
 ### Create instrument
 POST {{api}}/projects/{{projectId}}/instruments
@@ -12,15 +12,18 @@ Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-  "name": "Satisfaction survey",
-  "description": "Short customer experience instrument.",
-  "schema": {
+  "name": "Customer satisfaction survey",
+  "kind": "single_choice",
+  "config": {
     "type": "object",
     "properties": {
-      "satisfaction": { "type": "number" },
-      "comments": { "type": "string" }
+      "question": { "type": "string" },
+      "options": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
     },
-    "required": ["satisfaction"]
+    "required": ["question", "options"]
   }
 }
 
@@ -34,16 +37,19 @@ Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-  "name": "Satisfaction survey v2",
-  "description": "Updated survey instrument.",
-  "schema": {
+  "name": "Customer satisfaction survey v2",
+  "config": {
     "type": "object",
     "properties": {
-      "satisfaction": { "type": "number" },
-      "comments": { "type": "string" }
+      "question": { "type": "string" },
+      "options": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
     },
-    "required": ["satisfaction"]
-  }
+    "required": ["question", "options"]
+  },
+  "status": "active"
 }
 
 ### Create questionnaire
@@ -53,11 +59,14 @@ Content-Type: application/json
 
 {
   "name": "Baseline questionnaire",
-  "description": "Initial data collection flow.",
-  "items": [
-    {"key": "age", "type": "number"},
-    {"key": "country", "type": "string"}
-  ]
+  "schema": {
+    "type": "object",
+    "properties": {
+      "age": { "type": "number" },
+      "country": { "type": "string" }
+    },
+    "required": ["age"]
+  }
 }
 
 ### List questionnaires
