@@ -116,7 +116,7 @@ func Load() (*Config, error) {
 			AccessKey:         required("ACCESS_KEY_ID"),
 			SecretKey:         required("SECRET_ACCESS_KEY"),
 			Bucket:            required("BUCKET_NAME"),
-			PublicDomain:      required("PUBLIC_DOMAIN"),
+			PublicDomain:      optional("PUBLIC_DOMAIN", ""),
 			VideoMaxSizeMB:    optionalInt("VIDEO_MAX_SIZE_MB", 200),
 			VideoMaxDurationS: optionalInt("VIDEO_MAX_DURATION_S", 30),
 		},
