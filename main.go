@@ -4,7 +4,7 @@
 // @version			1.0
 // @description		API with Clean Architecture
 // @host			localhost:8080
-// @basePath			/
+// @basePath			/api
 // @schemes			http https
 //
 // @securityDefinitions.apikey BearerAuth

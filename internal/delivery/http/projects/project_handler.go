@@ -106,6 +106,19 @@ func toProjectInvitationResponse(i *domain.ProjectInvitation) projectInvitationR
 	}
 }
 
+// Create godoc
+// @Summary		Create project
+// @Description	Create a new project owned by the authenticated user
+// @Tags		Projects
+// @Accept		json
+// @Produce		json
+// @Param		body body createProjectRequest true "Project payload"
+// @Success		201 {object} projectResponse
+// @Failure		401 {object} map[string]string
+// @Failure		422 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects [post]
+// @Security	BearerAuth
 func (h *ProjectHandler) Create(c *gin.Context) {
 	var req createProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -135,6 +148,17 @@ func (h *ProjectHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, toProjectResponse(project))
 }
 
+// List godoc
+// @Summary		List projects
+// @Description	List projects where the authenticated user is owner or member
+// @Tags		Projects
+// @Produce		json
+// @Param		status query string false "Filter by project status"
+// @Success		200 {array} projectResponse
+// @Failure		401 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects [get]
+// @Security	BearerAuth
 func (h *ProjectHandler) List(c *gin.Context) {
 	userIDVal, exists := c.Get("userID")
 	if !exists {
@@ -168,6 +192,19 @@ func (h *ProjectHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// GetByID godoc
+// @Summary		Get project by ID
+// @Description	Get one project by ID when the authenticated user has access
+// @Tags		Projects
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Success		200 {object} projectResponse
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		404 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id} [get]
+// @Security	BearerAuth
 func (h *ProjectHandler) GetByID(c *gin.Context) {
 	userIDVal, exists := c.Get("userID")
 	if !exists {
@@ -197,6 +234,21 @@ func (h *ProjectHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, toProjectResponse(project))
 }
 
+// Update godoc
+// @Summary		Update project
+// @Description	Update project name, description, or status
+// @Tags		Projects
+// @Accept		json
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Param		body body updateProjectRequest true "Project patch payload"
+// @Success		200 {object} projectResponse
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		422 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id} [patch]
+// @Security	BearerAuth
 func (h *ProjectHandler) Update(c *gin.Context) {
 	var req updateProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -238,6 +290,18 @@ func (h *ProjectHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, toProjectResponse(project))
 }
 
+// Archive godoc
+// @Summary		Archive project
+// @Description	Archive a project and make it read-only for normal operations
+// @Tags		Projects
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Success		200 {object} map[string]string
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/archive [post]
+// @Security	BearerAuth
 func (h *ProjectHandler) Archive(c *gin.Context) {
 	userIDVal, exists := c.Get("userID")
 	if !exists {
@@ -265,6 +329,18 @@ func (h *ProjectHandler) Archive(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "archived"})
 }
 
+// Delete godoc
+// @Summary		Delete project
+// @Description	Delete a project permanently
+// @Tags		Projects
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Success		204 {string} string "No Content"
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id} [delete]
+// @Security	BearerAuth
 func (h *ProjectHandler) Delete(c *gin.Context) {
 	userIDVal, exists := c.Get("userID")
 	if !exists {
@@ -292,6 +368,21 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// InviteMember godoc
+// @Summary		Invite project member
+// @Description	Invite a user by email to join a project with a role
+// @Tags		Projects
+// @Accept		json
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Param		body body inviteMemberRequest true "Invitation payload"
+// @Success		201 {object} projectInvitationResponse
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		422 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/members/invite [post]
+// @Security	BearerAuth
 func (h *ProjectHandler) InviteMember(c *gin.Context) {
 	var req inviteMemberRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -327,6 +418,18 @@ func (h *ProjectHandler) InviteMember(c *gin.Context) {
 	c.JSON(http.StatusCreated, toProjectInvitationResponse(invitation))
 }
 
+// Members godoc
+// @Summary		List project members
+// @Description	List all members in a project
+// @Tags		Projects
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Success		200 {array} projectMemberResponse
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/members [get]
+// @Security	BearerAuth
 func (h *ProjectHandler) Members(c *gin.Context) {
 	userIDVal, exists := c.Get("userID")
 	if !exists {
@@ -364,12 +467,12 @@ func RegisterProjectRoutes(rg *gin.RouterGroup, h *ProjectHandler, authMiddlewar
 	projects.Use(authMiddleware)
 	projects.POST("", h.Create)
 	projects.GET("", h.List)
-	projects.GET(":id", h.GetByID)
-	projects.PATCH(":id", h.Update)
-	projects.DELETE(":id", h.Delete)
-	projects.POST(":id/archive", h.Archive)
-	projects.POST(":id/members/invite", h.InviteMember)
-	projects.GET(":id/members", h.Members)
+	projects.GET("/:id", h.GetByID)
+	projects.PATCH("/:id", h.Update)
+	projects.DELETE("/:id", h.Delete)
+	projects.POST("/:id/archive", h.Archive)
+	projects.POST("/:id/members/invite", h.InviteMember)
+	projects.GET("/:id/members", h.Members)
 }
 
 func (h *ProjectHandler) HandleError(c *gin.Context, err error) {

@@ -94,6 +94,21 @@ func toQuestionnaireResponse(q *domain.Questionnaire) questionnaireResponse {
 	}
 }
 
+// CreateInstrument godoc
+// @Summary		Create instrument
+// @Description	Create an instrument template in a project
+// @Tags		Instruments
+// @Accept		json
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Param		body body map[string]interface{} true "Instrument payload"
+// @Success		201 {object} map[string]interface{}
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		422 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/instruments [post]
+// @Security	BearerAuth
 func (h *InstrumentHandler) CreateInstrument(c *gin.Context) {
 	var req createInstrumentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -125,6 +140,18 @@ func (h *InstrumentHandler) CreateInstrument(c *gin.Context) {
 	c.JSON(http.StatusCreated, toInstrumentResponse(instrument))
 }
 
+// ListInstruments godoc
+// @Summary		List instruments
+// @Description	List instrument templates in a project
+// @Tags		Instruments
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Success		200 {array} map[string]interface{}
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/instruments [get]
+// @Security	BearerAuth
 func (h *InstrumentHandler) ListInstruments(c *gin.Context) {
 	userIDVal, exists := c.Get("userID")
 	if !exists {
@@ -155,6 +182,22 @@ func (h *InstrumentHandler) ListInstruments(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// UpdateInstrument godoc
+// @Summary		Update instrument
+// @Description	Update instrument name, config, or status
+// @Tags		Instruments
+// @Accept		json
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Param		instrumentID path string true "Instrument ID"
+// @Param		body body map[string]interface{} true "Instrument patch payload"
+// @Success		200 {object} map[string]interface{}
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		422 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/instruments/{instrumentID} [patch]
+// @Security	BearerAuth
 func (h *InstrumentHandler) UpdateInstrument(c *gin.Context) {
 	var req updateInstrumentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -191,6 +234,21 @@ func (h *InstrumentHandler) UpdateInstrument(c *gin.Context) {
 	c.JSON(http.StatusOK, toInstrumentResponse(instrument))
 }
 
+// CreateQuestionnaire godoc
+// @Summary		Create questionnaire
+// @Description	Create a questionnaire schema for a project
+// @Tags		Questionnaires
+// @Accept		json
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Param		body body map[string]interface{} true "Questionnaire payload"
+// @Success		201 {object} map[string]interface{}
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		422 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/questionnaires [post]
+// @Security	BearerAuth
 func (h *InstrumentHandler) CreateQuestionnaire(c *gin.Context) {
 	var req createQuestionnaireRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -222,6 +280,18 @@ func (h *InstrumentHandler) CreateQuestionnaire(c *gin.Context) {
 	c.JSON(http.StatusCreated, toQuestionnaireResponse(questionnaire))
 }
 
+// ListQuestionnaires godoc
+// @Summary		List questionnaires
+// @Description	List questionnaire versions in a project
+// @Tags		Questionnaires
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Success		200 {array} map[string]interface{}
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/questionnaires [get]
+// @Security	BearerAuth
 func (h *InstrumentHandler) ListQuestionnaires(c *gin.Context) {
 	userIDVal, exists := c.Get("userID")
 	if !exists {
@@ -252,6 +322,20 @@ func (h *InstrumentHandler) ListQuestionnaires(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// PublishQuestionnaire godoc
+// @Summary		Publish questionnaire
+// @Description	Publish a questionnaire version for active use
+// @Tags		Questionnaires
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Param		questionnaireID path string true "Questionnaire ID"
+// @Success		200 {object} map[string]interface{}
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		404 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/questionnaires/{questionnaireID}/publish [post]
+// @Security	BearerAuth
 func (h *InstrumentHandler) PublishQuestionnaire(c *gin.Context) {
 	userIDVal, exists := c.Get("userID")
 	if !exists {
@@ -283,11 +367,11 @@ func RegisterInstrumentRoutes(rg *gin.RouterGroup, h *InstrumentHandler, authMid
 	projectInstruments.Use(authMiddleware)
 	projectInstruments.POST("", h.CreateInstrument)
 	projectInstruments.GET("", h.ListInstruments)
-	projectInstruments.PATCH(":instrumentID", h.UpdateInstrument)
+	projectInstruments.PATCH("/:instrumentID", h.UpdateInstrument)
 
 	projectQuestionnaires := rg.Group("/projects/:id/questionnaires")
 	projectQuestionnaires.Use(authMiddleware)
 	projectQuestionnaires.POST("", h.CreateQuestionnaire)
 	projectQuestionnaires.GET("", h.ListQuestionnaires)
-	projectQuestionnaires.POST(":questionnaireID/publish", h.PublishQuestionnaire)
+	projectQuestionnaires.POST("/:questionnaireID/publish", h.PublishQuestionnaire)
 }

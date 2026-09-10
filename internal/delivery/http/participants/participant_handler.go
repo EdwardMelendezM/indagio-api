@@ -55,6 +55,21 @@ func toParticipantResponse(p *domain.Participant) participantResponse {
 	}
 }
 
+// Create godoc
+// @Summary		Create participant
+// @Description	Create a participant in a project
+// @Tags		Participants
+// @Accept		json
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Param		body body createParticipantRequest true "Participant payload"
+// @Success		201 {object} participantResponse
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		422 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/participants [post]
+// @Security	BearerAuth
 func (h *ParticipantHandler) Create(c *gin.Context) {
 	var req createParticipantRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -89,6 +104,18 @@ func (h *ParticipantHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, toParticipantResponse(participant))
 }
 
+// List godoc
+// @Summary		List participants
+// @Description	List participants for a project
+// @Tags		Participants
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Success		200 {array} participantResponse
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/participants [get]
+// @Security	BearerAuth
 func (h *ParticipantHandler) List(c *gin.Context) {
 	userIDVal, exists := c.Get("userID")
 	if !exists {
@@ -121,6 +148,20 @@ func (h *ParticipantHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// GetByCode godoc
+// @Summary		Get participant by code
+// @Description	Get one participant by project-scoped code
+// @Tags		Participants
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Param		code path string true "Participant code"
+// @Success		200 {object} participantResponse
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		404 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/participants/code/{code} [get]
+// @Security	BearerAuth
 func (h *ParticipantHandler) GetByCode(c *gin.Context) {
 	userIDVal, exists := c.Get("userID")
 	if !exists {
@@ -149,6 +190,22 @@ func (h *ParticipantHandler) GetByCode(c *gin.Context) {
 	c.JSON(http.StatusOK, toParticipantResponse(participant))
 }
 
+// UpdateStatus godoc
+// @Summary		Update participant status
+// @Description	Update participant status (for example active, paused, archived)
+// @Tags		Participants
+// @Accept		json
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Param		participantID path string true "Participant ID"
+// @Param		body body updateParticipantStatusRequest true "Status payload"
+// @Success		200 {object} participantResponse
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		422 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/participants/{participantID}/status [patch]
+// @Security	BearerAuth
 func (h *ParticipantHandler) UpdateStatus(c *gin.Context) {
 	var req updateParticipantStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
