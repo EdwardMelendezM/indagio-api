@@ -96,7 +96,8 @@ func (h *ExportHandler) RequestExport(c *gin.Context) {
 	}
 	actorID := actorIDFromContext(c)
 	if actorID == uuid.Nil {
-		actorID = uuid.New()
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
 	}
 	item, err := h.uc.RequestExport(c.Request.Context(), actorID, projectID, req.Format, req.Options)
 	if err != nil {
@@ -138,8 +139,8 @@ func (h *ExportHandler) ListExports(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func RegisterExportRoutes(rg *gin.RouterGroup, h *ExportHandler) {
+func RegisterExportRoutes(rg *gin.RouterGroup, h *ExportHandler, authMiddleware gin.HandlerFunc) {
 	projects := rg.Group("/projects")
-	projects.POST("/:id/exports", h.RequestExport)
-	projects.GET("/:id/exports", h.ListExports)
+	projects.POST("/:id/exports", authMiddleware, h.RequestExport)
+	projects.GET("/:id/exports", authMiddleware, h.ListExports)
 }

@@ -2,12 +2,13 @@
 @api = {{host}}/api
 @accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODkyNjg3NjgsImlhdCI6MTc4OTAwOTU2OCwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.TGW-H3Mw7HOGUWqLwxWIBvACZgLL4BhvH-22fEcZ_QU
 
-@participantId = 22222222-2222-2222-2222-222222222222
-@answerId = 55555555-5555-5555-5555-555555555555
-
 @projectId = c2f086da-0d38-407d-9c9b-1b32d6d4ee8b
 @instrumentId = ea35e4ec-499d-49da-a08e-a8758903870a
 @questionnaireId = 9da241b4-c5d2-4e38-bc4f-ea3f1a8fb588
+
+@participantId = 2a8e7ed3-d1f7-4a41-b8d9-dda1c54df1fd
+@answerId = 73b355de-1694-4ba3-966c-bdc5c10fcbe3
+@participantCode = MXSK2EBN
 
 ### Create answer
 POST {{api}}/projects/{{projectId}}/answers
@@ -19,7 +20,7 @@ Content-Type: application/json
   "instrument_id": "{{instrumentId}}",
   "questionnaire_id": "{{questionnaireId}}",
   "question_key": "satisfaction",
-  "answer_type": "number",
+  "answer_type": "numeric",
   "value": 4,
   "client_generated_id": "client-answer-001"
 }

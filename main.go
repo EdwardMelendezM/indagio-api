@@ -160,7 +160,7 @@ func main() {
 	answerhttp.RegisterAnswerRoutes(api, answerHandler, authMiddleware)
 	mediahttp.RegisterMediaRoutes(api, mediaHandler, authMiddleware)
 	synchttp.RegisterSyncRoutes(api, syncHandler)
-	exporthttp.RegisterExportRoutes(api, exportHandler)
+	exporthttp.RegisterExportRoutes(api, exportHandler, authMiddleware)
 	adminhttp.RegisterAdminRoutes(api, adminHandler, adminAuthMiddleware)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

@@ -1,10 +1,14 @@
 @host = http://localhost:8080
 @api = {{host}}/api
-@accessToken = your_access_token_here
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODkyNjg3NjgsImlhdCI6MTc4OTAwOTU2OCwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.TGW-H3Mw7HOGUWqLwxWIBvACZgLL4BhvH-22fEcZ_QU
 
-@projectId = 11111111-1111-1111-1111-111111111111
-@participantId = 22222222-2222-2222-2222-222222222222
-@participantCode = P-001
+
+@projectId = c2f086da-0d38-407d-9c9b-1b32d6d4ee8b
+@instrumentId = ea35e4ec-499d-49da-a08e-a8758903870a
+@questionnaireId = 9da241b4-c5d2-4e38-bc4f-ea3f1a8fb588
+
+@participantId = 2a8e7ed3-d1f7-4a41-b8d9-dda1c54df1fd
+@participantCode = MXSK2EBN
 
 ### Create participant
 POST {{api}}/projects/{{projectId}}/participants
