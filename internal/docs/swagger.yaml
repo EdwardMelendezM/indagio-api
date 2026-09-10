@@ -1,0 +1,918 @@
+definitions:
+  admin_user.AdminLoginRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  admin_user.AdminLoginResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  admin_user.AdminRequestOTPRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  admin_user.AuthAdminResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/admin_user.UserResponse'
+    type: object
+  admin_user.UserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+    type: object
+  admin_user.VerifyAdminOTPRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+    required:
+    - code
+    - email
+    type: object
+  auth.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/auth.UserResponse'
+    type: object
+  auth.BorderDTO:
+    properties:
+      asset_url:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+      thumbnail_url:
+        type: string
+      tier:
+        type: string
+    type: object
+  auth.ForgotPasswordRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  auth.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        maxLength: 80
+        minLength: 2
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  auth.ResetPasswordRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+      new_password:
+        minLength: 8
+        type: string
+    required:
+    - code
+    - email
+    - new_password
+    type: object
+  auth.UserResponse:
+    properties:
+      avatar_url:
+        type: string
+      blocked:
+        type: boolean
+      border:
+        allOf:
+        - $ref: '#/definitions/auth.BorderDTO'
+        description: nil when no border selected
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  auth.VerifyOTPRequest:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+    required:
+    - code
+    - email
+    type: object
+  media.PresignUploadRequest:
+    properties:
+      content_type:
+        enum:
+        - image/jpeg
+        - image/png
+        - image/webp
+        - video/mp4
+        type: string
+      extension:
+        description: 'ej: "webp", "mp4"'
+        type: string
+      target_type:
+        enum:
+        - avatar
+        - thread
+        - comment
+        - chat
+        type: string
+    required:
+    - content_type
+    - extension
+    - target_type
+    type: object
+  media.PresignUploadResponse:
+    properties:
+      file_url:
+        description: URL pública final que se guardará en la BD
+        type: string
+      upload_url:
+        description: URL temporal para el PUT del frontend
+        type: string
+    type: object
+  media.PresignedVideoRequest:
+    properties:
+      content_type:
+        enum:
+        - video/mp4
+        type: string
+      max_size_bytes:
+        minimum: 1
+        type: integer
+    required:
+    - content_type
+    - max_size_bytes
+    type: object
+  media.PresignedVideoResponse:
+    properties:
+      max_duration_s:
+        description: cap de duración del server (videos más largos serán rechazados
+          por el worker)
+        type: integer
+      max_size_bytes:
+        description: echo desde el cliente (o cap del server si el cliente pidió más)
+        type: integer
+      raw_key:
+        description: 'ej: "videos/raw/uuid.mp4"'
+        type: string
+      upload_url:
+        description: URL PUT firmada para R2
+        type: string
+    type: object
+  user.PublicUserResponse:
+    properties:
+      avatar_url:
+        type: string
+      border:
+        $ref: '#/definitions/auth.BorderDTO'
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  user.UpdateUserNameRequest:
+    description: New name for the user (2-100 characters)
+    properties:
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - name
+    type: object
+info:
+  contact: {}
+paths:
+  /admin/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Validates the OTP and returns a signed JWT access token with role
+        "admin".
+      parameters:
+      - description: Admin email
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin_user.AdminLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin_user.AdminLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Admin login
+      tags:
+      - AdminAuth
+  /admin/auth/request-otp:
+    post:
+      consumes:
+      - application/json
+      description: Sends a 6-digit one-time password to the admin's registered email.
+      parameters:
+      - description: Admin email
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin_user.AdminRequestOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Message
+          schema:
+            $ref: '#/definitions/admin_user.AdminLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Request admin OTP
+      tags:
+      - AdminAuth
+  /admin/auth/verify-otp:
+    post:
+      consumes:
+      - application/json
+      description: Verify the 6-digit code sent to email to activate account
+      parameters:
+      - description: Email and OTP code
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin_user.VerifyAdminOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User authenticated with tokens
+          schema:
+            $ref: '#/definitions/admin_user.AuthAdminResponse'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Invalid or expired OTP
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Verify OTP and activate account
+      tags:
+      - AdminAuth
+  /admin/me:
+    get:
+      description: Returns the ID of the authenticated admin extracted from the JWT.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Current admin identity
+      tags:
+      - AdminAuth
+  /api/users/{id}:
+    get:
+      description: |-
+        Returns the safe-to-expose fields of any user (id, name,
+        role, avatar URL, selected border, created_at). Email and
+        the internal `blocked` flag are intentionally omitted.
+        No authentication required — this is the endpoint the
+        frontend calls when rendering someone else's profile page.
+      parameters:
+      - description: User ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Public profile
+          schema:
+            $ref: '#/definitions/user.PublicUserResponse'
+        "404":
+          description: User not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Invalid user id
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a user's public profile
+      tags:
+      - Users
+  /api/users/{id}/name:
+    patch:
+      consumes:
+      - application/json
+      description: Allows a user to update their own name or allows moderators/admins
+        to update any user's name
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New name
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateUserNameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Name updated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid user id or request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden - not allowed to update this user
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Validation failed - name must be 2-100 characters
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user name
+      tags:
+      - Users
+  /api/users/available:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Returns a paginated, searchable list of verified, non-deleted
+        users (excluding the caller) that can be used as the
+        target of POST /api/conversations.
+      parameters:
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 20, max 100)
+        in: query
+        name: limit
+        type: integer
+      - description: Case-insensitive search on name/email
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Available users with pagination
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Authentication required
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Invalid query parameters
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List users available to start a conversation with
+      tags:
+      - Users
+  /auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Send a password reset code to the user's email
+      parameters:
+      - description: Email address
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Reset code sent if email exists
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Validation failed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Request password reset
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password
+      parameters:
+      - description: Email and password
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User authenticated with tokens
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Validation failed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Clear refresh token cookie to logout user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout user
+      tags:
+      - Auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve authenticated user's profile information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User profile
+          schema:
+            $ref: '#/definitions/auth.UserResponse'
+        "401":
+          description: Authentication required
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Generate a new access token using refresh token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New access token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid or missing refresh token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refresh access token
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email verification via OTP
+      parameters:
+      - description: Registration data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Verification code sent
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Validation failed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create user account
+      tags:
+      - Auth
+  /auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset user's password using the OTP code sent to their email
+      parameters:
+      - description: Email, code, and new password
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password reset successful
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Invalid or expired OTP
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Reset password with OTP code
+      tags:
+      - Auth
+  /auth/verify-otp:
+    post:
+      consumes:
+      - application/json
+      description: Verify the 6-digit code sent to email to activate account
+      parameters:
+      - description: Email and OTP code
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/auth.VerifyOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User authenticated with tokens
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Invalid or expired OTP
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Verify OTP and activate account
+      tags:
+      - Auth
+  /media/presign:
+    post:
+      consumes:
+      - application/json
+      description: Get a presigned URL for uploading a file to Cloudflare R2. Return
+        both upload URL and final file URL.
+      parameters:
+      - description: Upload request with file metadata
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/media.PresignUploadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Presigned URL and final file URL
+          schema:
+            $ref: '#/definitions/media.PresignUploadResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Authentication required
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Validation failed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to generate upload URL
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Request presigned upload URL
+      tags:
+      - Media
+  /media/presigned-video:
+    post:
+      consumes:
+      - application/json
+      description: Get a presigned PUT URL for uploading a video directly to R2. Returns
+        upload URL, raw key, and the effective max size in bytes.
+      parameters:
+      - description: Video upload request with content type and max size
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/media.PresignedVideoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Presigned PUT URL, raw key, and effective max size
+          schema:
+            $ref: '#/definitions/media.PresignedVideoResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Authentication required
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Validation failed (content_type or max_size_bytes)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to generate upload URL
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Request presigned URL for video upload
+      tags:
+      - Media
+swagger: "2.0"

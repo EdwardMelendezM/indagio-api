@@ -3,14 +3,10 @@ package worker
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log/slog"
-	"strings"
 	"time"
 
 	"indagio-api/internal/domain"
-
-	"github.com/google/uuid"
 )
 
 type JobWorker struct {
