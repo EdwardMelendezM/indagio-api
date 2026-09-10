@@ -12,7 +12,7 @@ migrate create -ext sql -dir db/migrations {name}.sql
 go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 # Run up
-migrate -path db/migrations -database "postgres://postgres:postgres@localhost:5491/foro_unsaac_db?sslmode=disable" up
+migrate -path db/migrations -database "postgres://postgres:postgres@localhost:5492/indagio_db?sslmode=disable" up
 
 .\migrate -path db/migrations -database "postgresql://neondb_owner:npg_b0w9TXCJRmIO@ep-royal-scene-ad26zls9.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require" up
 
