@@ -1408,8 +1408,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/answers.AnswerResponse"
                         }
                     },
                     "400": {
@@ -2662,6 +2661,50 @@ const docTemplate = `{
                 },
                 "email": {
                     "type": "string"
+                }
+            }
+        },
+        "answers.AnswerResponse": {
+            "type": "object",
+            "properties": {
+                "answer_type": {
+                    "type": "string"
+                },
+                "client_generated_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "instrument_id": {
+                    "type": "string"
+                },
+                "participant_id": {
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "question_key": {
+                    "type": "string"
+                },
+                "questionnaire_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "sync_status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "object"
                 }
             }
         },

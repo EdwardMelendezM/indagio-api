@@ -45,6 +45,35 @@ definitions:
     - code
     - email
     type: object
+  answers.AnswerResponse:
+    properties:
+      answer_type:
+        type: string
+      client_generated_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      instrument_id:
+        type: string
+      participant_id:
+        type: string
+      project_id:
+        type: string
+      question_key:
+        type: string
+      questionnaire_id:
+        type: string
+      status:
+        type: string
+      sync_status:
+        type: string
+      updated_at:
+        type: string
+      value:
+        type: object
+    type: object
   answers.CreateAnswerRequest:
     type: object
   answers.CreateMediaRequest:
@@ -1380,8 +1409,7 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/answers.AnswerResponse'
         "400":
           description: Bad Request
           schema:

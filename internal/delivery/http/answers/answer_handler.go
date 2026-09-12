@@ -30,7 +30,7 @@ func NewAnswerHandler(uc domain.AnswerUsecase, logger *slog.Logger) *AnswerHandl
 // @Produce		json
 // @Param		id path string true "Project ID"
 // @Param		body body CreateAnswerRequest true "Answer payload"
-// @Success		201 {object} map[string]interface{}
+// @Success		201 {object} AnswerResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		422 {object} map[string]string
@@ -97,7 +97,7 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 // @Produce		json
 // @Param		id path string true "Project ID"
 // @Param		participantID path string true "Participant ID"
-// @Success		200 {array} map[string]interface{}
+// @Success		200 {array} AnswerResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
 // @Failure		500 {object} map[string]string

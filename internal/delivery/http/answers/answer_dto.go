@@ -34,7 +34,7 @@ type AnswerResponse struct {
 	QuestionnaireID   *string         `json:"questionnaire_id,omitempty"`
 	QuestionKey       string          `json:"question_key"`
 	AnswerType        string          `json:"answer_type"`
-	Value             json.RawMessage `json:"value"`
+	Value             json.RawMessage `json:"value" swaggertype:"object"`
 	Status            string          `json:"status"`
 	SyncStatus        string          `json:"sync_status"`
 	ClientGeneratedID *string         `json:"client_generated_id,omitempty"`
