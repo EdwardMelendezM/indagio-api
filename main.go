@@ -147,6 +147,7 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(gin.LoggerWithWriter(os.Stdout))
+	r.Use(middleware.CORSMiddleware())
 
 	api := r.Group("/api")
 	authMiddleware := middleware.AuthMiddleware(tokenSvc)
