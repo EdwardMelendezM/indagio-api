@@ -147,7 +147,7 @@ func (h *AdminHandler) VerifyOTP(c *gin.Context) {
 	c.JSON(http.StatusOK, AuthAdminResponse{
 		AccessToken:  access,
 		RefreshToken: refresh,
-		Admin: UserResponse{
+		Admin: UserAdminResponse{
 			ID:    user.ID.String(),
 			Email: user.Email,
 		},

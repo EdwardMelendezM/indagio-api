@@ -2151,8 +2151,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "additionalProperties": true
+                                "$ref": "#/definitions/answers.AnswerResponse"
                             }
                         }
                     },
@@ -2634,11 +2633,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/admin_user.UserResponse"
+                    "$ref": "#/definitions/admin_user.UserAdminResponse"
                 }
             }
         },
-        "admin_user.UserResponse": {
+        "admin_user.UserAdminResponse": {
             "type": "object",
             "properties": {
                 "email": {

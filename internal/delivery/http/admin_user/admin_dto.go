@@ -23,13 +23,13 @@ type VerifyAdminOTPRequest struct {
 }
 
 type AuthAdminResponse struct {
-	AccessToken  string       `json:"access_token"`
-	RefreshToken string       `json:"refresh_token"`
-	Admin        UserResponse `json:"user"`
+	AccessToken  string            `json:"access_token"`
+	RefreshToken string            `json:"refresh_token"`
+	Admin        UserAdminResponse `json:"user"`
 }
 
-// UserResponse DTO
-type UserResponse struct {
+// UserAdminResponse DTO
+type UserAdminResponse struct {
 	ID    string `json:"id"`
 	Email string `json:"email"`
 }

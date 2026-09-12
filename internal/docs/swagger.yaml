@@ -26,9 +26,9 @@ definitions:
       refresh_token:
         type: string
       user:
-        $ref: '#/definitions/admin_user.UserResponse'
+        $ref: '#/definitions/admin_user.UserAdminResponse'
     type: object
-  admin_user.UserResponse:
+  admin_user.UserAdminResponse:
     properties:
       email:
         type: string
@@ -1839,8 +1839,7 @@ paths:
           description: OK
           schema:
             items:
-              additionalProperties: true
-              type: object
+              $ref: '#/definitions/answers.AnswerResponse'
             type: array
         "400":
           description: Bad Request
