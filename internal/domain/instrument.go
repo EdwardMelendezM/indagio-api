@@ -63,10 +63,6 @@ type InstrumentRepository interface {
 	GetInstrumentByID(ctx context.Context, instrumentID uuid.UUID) (*Instrument, error)
 	ListInstrumentsByProject(ctx context.Context, projectID uuid.UUID) ([]Instrument, error)
 	UpdateInstrument(ctx context.Context, instrumentID uuid.UUID, name *string, config *json.RawMessage, status *InstrumentStatus) (*Instrument, error)
-	CreateQuestionnaire(ctx context.Context, projectID, createdBy uuid.UUID, name string, schema json.RawMessage) (*Questionnaire, error)
-	ListQuestionnairesByProject(ctx context.Context, projectID uuid.UUID) ([]Questionnaire, error)
-	GetQuestionnaireByID(ctx context.Context, questionnaireID uuid.UUID) (*Questionnaire, error)
-	PublishQuestionnaire(ctx context.Context, questionnaireID uuid.UUID) (*Questionnaire, error)
 }
 
 // InstrumentUsecase defines the business logic for instrument/questionnaire management.
@@ -74,7 +70,4 @@ type InstrumentUsecase interface {
 	CreateInstrument(ctx context.Context, actorID, projectID uuid.UUID, name string, kind string, config json.RawMessage) (*Instrument, error)
 	ListInstruments(ctx context.Context, actorID, projectID uuid.UUID) ([]Instrument, error)
 	UpdateInstrument(ctx context.Context, actorID, instrumentID uuid.UUID, name *string, config *json.RawMessage, status *InstrumentStatus) (*Instrument, error)
-	CreateQuestionnaire(ctx context.Context, actorID, projectID uuid.UUID, name string, schema json.RawMessage) (*Questionnaire, error)
-	ListQuestionnaires(ctx context.Context, actorID, projectID uuid.UUID) ([]Questionnaire, error)
-	PublishQuestionnaire(ctx context.Context, actorID, questionnaireID uuid.UUID) (*Questionnaire, error)
 }

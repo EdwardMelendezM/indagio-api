@@ -67,31 +67,3 @@ func (uc *instrumentUsecase) UpdateInstrument(ctx context.Context, actorID, inst
 	}
 	return uc.repo.UpdateInstrument(ctx, instrumentID, name, config, status)
 }
-
-func (uc *instrumentUsecase) CreateQuestionnaire(ctx context.Context, actorID, projectID uuid.UUID, name string, schema json.RawMessage) (*domain.Questionnaire, error) {
-	if actorID == uuid.Nil || projectID == uuid.Nil {
-		return nil, fmt.Errorf("actor/project id: %w", domain.ErrValidation)
-	}
-	name = strings.TrimSpace(name)
-	if len(name) < 2 || len(name) > 160 {
-		return nil, fmt.Errorf("name: %w", domain.ErrValidation)
-	}
-	if !json.Valid(schema) {
-		return nil, fmt.Errorf("schema: %w", domain.ErrValidation)
-	}
-	return uc.repo.CreateQuestionnaire(ctx, projectID, actorID, name, schema)
-}
-
-func (uc *instrumentUsecase) ListQuestionnaires(ctx context.Context, actorID, projectID uuid.UUID) ([]domain.Questionnaire, error) {
-	if actorID == uuid.Nil || projectID == uuid.Nil {
-		return nil, fmt.Errorf("actor/project id: %w", domain.ErrValidation)
-	}
-	return uc.repo.ListQuestionnairesByProject(ctx, projectID)
-}
-
-func (uc *instrumentUsecase) PublishQuestionnaire(ctx context.Context, actorID, questionnaireID uuid.UUID) (*domain.Questionnaire, error) {
-	if actorID == uuid.Nil || questionnaireID == uuid.Nil {
-		return nil, fmt.Errorf("actor/questionnaire id: %w", domain.ErrValidation)
-	}
-	return uc.repo.PublishQuestionnaire(ctx, questionnaireID)
-}
