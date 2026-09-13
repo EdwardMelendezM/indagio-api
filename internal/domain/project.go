@@ -42,14 +42,19 @@ type Project struct {
 
 // ProjectMember is a direct membership assignment linking a user to a project.
 type ProjectMember struct {
-	ID        uuid.UUID
-	ProjectID uuid.UUID
-	UserID    uuid.UUID
-	Role      ProjectMemberRole
-	Status    string
-	InvitedBy *uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID            uuid.UUID
+	ProjectID     uuid.UUID
+	UserID        uuid.UUID
+	UserEmail     string
+	UserName      string
+	UserRole      string
+	UserCreatedAt time.Time
+	UserUpdatedAt time.Time
+	Role          ProjectMemberRole
+	Status        string
+	InvitedBy     *uuid.UUID
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 // ProjectInvitation is an invitation sent to a user email for a project.

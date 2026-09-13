@@ -2919,6 +2919,29 @@ const docTemplate = `{
                 }
             }
         },
+        "projects.MemberUserResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "projects.ProjectInvitationResponse": {
             "type": "object",
             "properties": {
@@ -2966,8 +2989,8 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string"
                 },
-                "user_id": {
-                    "type": "string"
+                "user": {
+                    "$ref": "#/definitions/projects.MemberUserResponse"
                 }
             }
         },

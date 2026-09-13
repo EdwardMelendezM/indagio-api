@@ -34,11 +34,20 @@ type ProjectResponse struct {
 }
 
 type ProjectMemberResponse struct {
+	ID        string             `json:"id"`
+	ProjectID string             `json:"project_id"`
+	User      MemberUserResponse `json:"user"`
+	Role      string             `json:"role"`
+	Status    string             `json:"status"`
+	CreatedAt time.Time          `json:"created_at"`
+	UpdatedAt time.Time          `json:"updated_at"`
+}
+
+type MemberUserResponse struct {
 	ID        string    `json:"id"`
-	ProjectID string    `json:"project_id"`
-	UserID    string    `json:"user_id"`
+	Email     string    `json:"email"`
+	Name      string    `json:"name"`
 	Role      string    `json:"role"`
-	Status    string    `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -69,7 +78,14 @@ func ToProjectMemberResponse(m domain.ProjectMember) ProjectMemberResponse {
 	return ProjectMemberResponse{
 		ID:        m.ID.String(),
 		ProjectID: m.ProjectID.String(),
-		UserID:    m.UserID.String(),
+		User: MemberUserResponse{
+			ID:        m.UserID.String(),
+			Email:     m.UserEmail,
+			Name:      m.UserName,
+			Role:      string(m.UserRole),
+			CreatedAt: m.UserCreatedAt,
+			UpdatedAt: m.UserUpdatedAt,
+		},
 		Role:      string(m.Role),
 		Status:    m.Status,
 		CreatedAt: m.CreatedAt,

@@ -236,10 +236,12 @@ func (r *postgresProjectRepository) RemoveMember(ctx context.Context, projectID,
 
 func (r *postgresProjectRepository) ListMembers(ctx context.Context, projectID uuid.UUID) ([]domain.ProjectMember, error) {
 	rows, err := r.db.QueryContext(ctx, `
-		SELECT id, project_id, user_id, role, status, invited_by, created_at, updated_at
-		FROM project_members
-		WHERE project_id = $1
-		ORDER BY created_at ASC
+		SELECT pm.id, pm.project_id, pm.user_id, pm.role, pm.status, pm.invited_by, pm.created_at, pm.updated_at,
+		       u.email, u.name, u.role, u.created_at, u.updated_at
+		FROM project_members pm
+		JOIN users u ON pm.user_id = u.id
+		WHERE pm.project_id = $1
+		ORDER BY pm.created_at ASC
 	`, projectID)
 	if err != nil {
 		return nil, fmt.Errorf("list project members: %w", err)
@@ -250,7 +252,8 @@ func (r *postgresProjectRepository) ListMembers(ctx context.Context, projectID u
 	for rows.Next() {
 		var m domain.ProjectMember
 		var invitedBy sql.NullString
-		if err := rows.Scan(&m.ID, &m.ProjectID, &m.UserID, &m.Role, &m.Status, &invitedBy, &m.CreatedAt, &m.UpdatedAt); err != nil {
+		if err := rows.Scan(&m.ID, &m.ProjectID, &m.UserID, &m.Role, &m.Status, &invitedBy, &m.CreatedAt, &m.UpdatedAt,
+			&m.UserEmail, &m.UserName, &m.UserRole, &m.UserCreatedAt, &m.UserUpdatedAt); err != nil {
 			return nil, fmt.Errorf("scan member: %w", err)
 		}
 		if invitedBy.Valid {

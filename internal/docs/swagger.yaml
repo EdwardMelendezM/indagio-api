@@ -374,6 +374,21 @@ definitions:
     - expires_at
     - role
     type: object
+  projects.MemberUserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+    type: object
   projects.ProjectInvitationResponse:
     properties:
       created_at:
@@ -405,8 +420,8 @@ definitions:
         type: string
       updated_at:
         type: string
-      user_id:
-        type: string
+      user:
+        $ref: '#/definitions/projects.MemberUserResponse'
     type: object
   projects.ProjectResponse:
     properties:
