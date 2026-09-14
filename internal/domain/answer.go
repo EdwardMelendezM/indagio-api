@@ -12,11 +12,10 @@ import (
 type AnswerType string
 
 const (
-	AnswerTypeText       AnswerType = "text"
-	AnswerTypeNumeric    AnswerType = "numeric"
-	AnswerTypeChoice     AnswerType = "choice"
-	AnswerTypeMedia      AnswerType = "media"
-	AnswerTypeStructured AnswerType = "structured"
+	AnswerTypeSingleChoice   AnswerType = "single_choice"
+	AnswerTypeMultipleChoice AnswerType = "multiple_choice"
+	AnswerTypeText           AnswerType = "text"
+	AnswerTypeScale          AnswerType = "scale"
 )
 
 // AnswerStatus indicates the lifecycle of an answer record.

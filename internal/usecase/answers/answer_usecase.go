@@ -31,7 +31,7 @@ func (uc *answerUsecase) CreateAnswer(ctx context.Context, actorID, projectID, p
 		return nil, fmt.Errorf("value: %w", domain.ErrValidation)
 	}
 	parsedType := domain.AnswerType(answerType)
-	if parsedType != domain.AnswerTypeText && parsedType != domain.AnswerTypeNumeric && parsedType != domain.AnswerTypeChoice && parsedType != domain.AnswerTypeMedia && parsedType != domain.AnswerTypeStructured {
+	if parsedType != domain.AnswerTypeSingleChoice && parsedType != domain.AnswerTypeMultipleChoice && parsedType != domain.AnswerTypeText && parsedType != domain.AnswerTypeScale {
 		return nil, fmt.Errorf("answer type: %w", domain.ErrValidation)
 	}
 	return uc.repo.CreateAnswer(ctx, projectID, participantID, instrumentID, questionnaireID, questionKey, parsedType, value, clientGeneratedID)
