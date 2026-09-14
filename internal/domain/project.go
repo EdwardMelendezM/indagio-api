@@ -94,6 +94,7 @@ type ProjectUsecase interface {
 	UpdateProject(ctx context.Context, actorID uuid.UUID, projectID uuid.UUID, name *string, description *string, status *ProjectStatus) (*Project, error)
 	ArchiveProject(ctx context.Context, actorID uuid.UUID, projectID uuid.UUID) error
 	DeleteProject(ctx context.Context, actorID uuid.UUID, projectID uuid.UUID) error
+	AddMember(ctx context.Context, actorID uuid.UUID, projectID uuid.UUID, userID uuid.UUID, role ProjectMemberRole) (*ProjectMember, error)
 	InviteMember(ctx context.Context, actorID uuid.UUID, projectID uuid.UUID, email string, role ProjectMemberRole, expiresAt time.Time) (*ProjectInvitation, error)
 	ListMembers(ctx context.Context, actorID uuid.UUID, projectID uuid.UUID) ([]ProjectMember, error)
 }

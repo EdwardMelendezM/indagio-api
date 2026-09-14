@@ -350,6 +350,16 @@ definitions:
     required:
     - status
     type: object
+  projects.AddMemberRequest:
+    properties:
+      role:
+        type: string
+      user_id:
+        type: string
+    required:
+    - role
+    - user_id
+    type: object
   projects.CreateProjectRequest:
     properties:
       description:
@@ -448,6 +458,19 @@ definitions:
         type: string
       status:
         type: string
+    type: object
+  user.ListAvailableUserResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/auth.UserResponse'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
     type: object
   user.PublicUserResponse:
     properties:
@@ -742,8 +765,7 @@ paths:
         "200":
           description: Available users with pagination
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/user.ListAvailableUserResponse'
         "401":
           description: Authentication required
           schema:
@@ -1652,6 +1674,64 @@ paths:
       security:
       - BearerAuth: []
       summary: List project members
+      tags:
+      - Projects
+    post:
+      consumes:
+      - application/json
+      description: Directly add an existing user to a project as a project member
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Member payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/projects.AddMemberRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/projects.ProjectMemberResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Add project member by user ID
       tags:
       - Projects
   /projects/{id}/members/invite:

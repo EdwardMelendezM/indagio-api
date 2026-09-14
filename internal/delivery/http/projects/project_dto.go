@@ -17,6 +17,11 @@ type UpdateProjectRequest struct {
 	Status      *string `json:"status"`
 }
 
+type AddMemberRequest struct {
+	UserID string `json:"user_id" binding:"required"`
+	Role   string `json:"role" binding:"required"`
+}
+
 type InviteMemberRequest struct {
 	Email     string    `json:"email" binding:"required,email"`
 	Role      string    `json:"role" binding:"required"`

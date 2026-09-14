@@ -285,6 +285,62 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// AddMember godoc
+// @Summary		Add project member by user ID
+// @Description	Directly add an existing user to a project as a project member
+// @Tags		Projects
+// @Accept		json
+// @Produce		json
+// @Param		id path string true "Project ID"
+// @Param		body body AddMemberRequest true "Member payload"
+// @Success		201 {object} ProjectMemberResponse
+// @Failure		400 {object} map[string]string
+// @Failure		401 {object} map[string]string
+// @Failure		409 {object} map[string]string
+// @Failure		422 {object} map[string]string
+// @Failure		500 {object} map[string]string
+// @Router		/projects/{id}/members [post]
+// @Security	BearerAuth
+func (h *ProjectHandler) AddMember(c *gin.Context) {
+	var req AddMemberRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid request"})
+		return
+	}
+
+	userIDVal, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication required"})
+		return
+	}
+	actorID, ok := userIDVal.(uuid.UUID)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal context error"})
+		return
+	}
+	projectID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid project id"})
+		return
+	}
+	memberUserID, err := uuid.Parse(req.UserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	role := domain.ProjectMemberRole(req.Role)
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
+	defer cancel()
+
+	member, err := h.uc.AddMember(ctx, actorID, projectID, memberUserID, role)
+	if err != nil {
+		utils.HandleError(c, err, h.logger)
+		return
+	}
+	c.JSON(http.StatusCreated, ToProjectMemberResponse(*member))
+}
+
 // InviteMember godoc
 // @Summary		Invite project member
 // @Description	Invite a user by email to join a project with a role
@@ -388,6 +444,7 @@ func RegisterProjectRoutes(rg *gin.RouterGroup, h *ProjectHandler, authMiddlewar
 	projects.PATCH("/:id", h.Update)
 	projects.DELETE("/:id", h.Delete)
 	projects.POST("/:id/archive", h.Archive)
+	projects.POST("/:id/members", h.AddMember)
 	projects.POST("/:id/members/invite", h.InviteMember)
 	projects.GET("/:id/members", h.Members)
 }

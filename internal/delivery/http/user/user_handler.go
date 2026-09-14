@@ -96,7 +96,7 @@ func (h *UserHandler) UpdateName(c *gin.Context) {
 // @Param		page	query	int		false	"Page number (default 1)"
 // @Param		limit	query	int		false	"Items per page (default 20, max 100)"
 // @Param		q		query	string	false	"Case-insensitive search on name/email"
-// @Success		200	{object}	map[string]interface{}	"Available users with pagination"
+// @Success		200	{object}	ListAvailableUserResponse "Available users with pagination"
 // @Failure		401	{object}	map[string]string	"Authentication required"
 // @Failure		422	{object}	map[string]string	"Invalid query parameters"
 // @Failure		500	{object}	map[string]string	"Internal server error"

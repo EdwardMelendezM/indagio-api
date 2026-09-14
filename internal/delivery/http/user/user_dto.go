@@ -74,3 +74,10 @@ func ToPublicUserResponse(u *domain.User) PublicUserResponse {
 		CreatedAt: u.CreatedAt.Format(time.RFC3339),
 	}
 }
+
+type ListAvailableUserResponse struct {
+	Data  []auth.UserResponse `json:"data"`
+	Total int                 `json:"total"`
+	Page  int                 `json:"page"`
+	Limit int                 `json:"limit"`
+}

@@ -159,6 +159,43 @@ func (uc *projectUsecase) DeleteProject(ctx context.Context, actorID uuid.UUID, 
 	return uc.repo.Delete(ctx, projectID)
 }
 
+func (uc *projectUsecase) AddMember(ctx context.Context, actorID uuid.UUID, projectID uuid.UUID, userID uuid.UUID, role domain.ProjectMemberRole) (*domain.ProjectMember, error) {
+	if actorID == uuid.Nil || projectID == uuid.Nil || userID == uuid.Nil {
+		return nil, fmt.Errorf("actor/project/user id: %w", domain.ErrValidation)
+	}
+	if role != domain.ProjectMemberRoleAdmin && role != domain.ProjectMemberRoleMember {
+		return nil, fmt.Errorf("role: %w", domain.ErrValidation)
+	}
+
+	if _, err := uc.repo.GetByID(ctx, projectID); err != nil {
+		return nil, fmt.Errorf("get project: %w", err)
+	}
+
+	members, err := uc.repo.ListMembers(ctx, projectID)
+	if err != nil {
+		return nil, fmt.Errorf("list members: %w", err)
+	}
+
+	allowed := false
+	for _, member := range members {
+		if member.UserID == actorID && (member.Role == domain.ProjectMemberRoleOwner || member.Role == domain.ProjectMemberRoleAdmin) {
+			allowed = true
+			break
+		}
+	}
+	if !allowed {
+		return nil, fmt.Errorf("add member: %w", domain.ErrForbidden)
+	}
+
+	for _, member := range members {
+		if member.UserID == userID {
+			return nil, fmt.Errorf("member already exists: %w", domain.ErrConflict)
+		}
+	}
+
+	return uc.repo.AddMember(ctx, projectID, userID, actorID, role)
+}
+
 func (uc *projectUsecase) InviteMember(ctx context.Context, actorID uuid.UUID, projectID uuid.UUID, email string, role domain.ProjectMemberRole, expiresAt time.Time) (*domain.ProjectInvitation, error) {
 	email = strings.TrimSpace(strings.ToLower(email))
 	if actorID == uuid.Nil || projectID == uuid.Nil {

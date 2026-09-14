@@ -161,6 +161,80 @@ func TestProjectUsecase_CreateProject_AddsOwnerMembership(t *testing.T) {
 	}
 }
 
+func TestProjectUsecase_AddMember_Success(t *testing.T) {
+	ownerID := uuid.New()
+	targetID := uuid.New()
+	projectID := uuid.New()
+	repo := &stubProjectRepo{
+		projects: map[uuid.UUID]*domain.Project{projectID: &domain.Project{ID: projectID, OwnerID: ownerID, Name: "Alpha Project", Status: domain.ProjectStatusDraft}},
+		members:  map[uuid.UUID][]domain.ProjectMember{projectID: {{UserID: ownerID, Role: domain.ProjectMemberRoleOwner}}},
+	}
+	uc := NewProjectUsecase(repo)
+
+	member, err := uc.AddMember(context.Background(), ownerID, projectID, targetID, domain.ProjectMemberRoleMember)
+	if err != nil {
+		t.Fatalf("AddMember returned error: %v", err)
+	}
+	if member.UserID != targetID {
+		t.Fatalf("expected target user %s, got %s", targetID, member.UserID)
+	}
+	if len(repo.members[projectID]) != 2 {
+		t.Fatalf("expected 2 members after add, got %d", len(repo.members[projectID]))
+	}
+}
+
+func TestProjectUsecase_AddMember_ValidatesRole(t *testing.T) {
+	ownerID := uuid.New()
+	targetID := uuid.New()
+	projectID := uuid.New()
+	repo := &stubProjectRepo{
+		projects: map[uuid.UUID]*domain.Project{projectID: &domain.Project{ID: projectID, OwnerID: ownerID, Name: "Alpha Project", Status: domain.ProjectStatusDraft}},
+		members:  map[uuid.UUID][]domain.ProjectMember{projectID: {{UserID: ownerID, Role: domain.ProjectMemberRoleOwner}}},
+	}
+	uc := NewProjectUsecase(repo)
+
+	_, err := uc.AddMember(context.Background(), ownerID, projectID, targetID, "invalid")
+	if !errors.Is(err, domain.ErrValidation) {
+		t.Fatalf("expected ErrValidation, got %v", err)
+	}
+}
+
+func TestProjectUsecase_AddMember_RejectsUnauthorizedActor(t *testing.T) {
+	ownerID := uuid.New()
+	memberID := uuid.New()
+	targetID := uuid.New()
+	projectID := uuid.New()
+	repo := &stubProjectRepo{
+		projects: map[uuid.UUID]*domain.Project{projectID: &domain.Project{ID: projectID, OwnerID: ownerID, Name: "Alpha Project", Status: domain.ProjectStatusDraft}},
+		members:  map[uuid.UUID][]domain.ProjectMember{projectID: {{UserID: memberID, Role: domain.ProjectMemberRoleMember}}},
+	}
+	uc := NewProjectUsecase(repo)
+
+	_, err := uc.AddMember(context.Background(), memberID, projectID, targetID, domain.ProjectMemberRoleMember)
+	if !errors.Is(err, domain.ErrForbidden) {
+		t.Fatalf("expected ErrForbidden, got %v", err)
+	}
+}
+
+func TestProjectUsecase_AddMember_RejectsDuplicateMember(t *testing.T) {
+	ownerID := uuid.New()
+	targetID := uuid.New()
+	projectID := uuid.New()
+	repo := &stubProjectRepo{
+		projects: map[uuid.UUID]*domain.Project{projectID: &domain.Project{ID: projectID, OwnerID: ownerID, Name: "Alpha Project", Status: domain.ProjectStatusDraft}},
+		members: map[uuid.UUID][]domain.ProjectMember{projectID: {
+			{UserID: ownerID, Role: domain.ProjectMemberRoleOwner},
+			{UserID: targetID, Role: domain.ProjectMemberRoleMember},
+		}},
+	}
+	uc := NewProjectUsecase(repo)
+
+	_, err := uc.AddMember(context.Background(), ownerID, projectID, targetID, domain.ProjectMemberRoleAdmin)
+	if !errors.Is(err, domain.ErrConflict) {
+		t.Fatalf("expected ErrConflict, got %v", err)
+	}
+}
+
 func TestProjectUsecase_InviteMember_ValidatesRole(t *testing.T) {
 	ownerID := uuid.New()
 	projectID := uuid.New()
