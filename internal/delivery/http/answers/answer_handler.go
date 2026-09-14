@@ -90,6 +90,7 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 // @Produce		json
 // @Param		id path string true "Project ID"
 // @Param		participantID path string true "Participant ID"
+// @Param		instrumentId query string false "Instrument ID"
 // @Success		200 {array} AnswerResponse
 // @Failure		400 {object} map[string]string
 // @Failure		401 {object} map[string]string
@@ -117,9 +118,18 @@ func (h *AnswerHandler) ListAnswers(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid participant id"})
 		return
 	}
+	var instrumentID *uuid.UUID
+	if rawInstrumentID := c.Query("instrumentId"); rawInstrumentID != "" {
+		parsed, err := uuid.Parse(rawInstrumentID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid instrument id"})
+			return
+		}
+		instrumentID = &parsed
+	}
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
-	answers, err := h.uc.ListAnswers(ctx, userID, projectID, participantID)
+	answers, err := h.uc.ListAnswers(ctx, userID, projectID, participantID, instrumentID)
 	if err != nil {
 		utils.HandleError(c, err, h.logger)
 		return
@@ -127,13 +137,11 @@ func (h *AnswerHandler) ListAnswers(c *gin.Context) {
 	resp := make([]AnswerResponse, 0, len(answers))
 	for _, a := range answers {
 		respItem := ToAnswerResponse(&a)
-		if a.InstrumentID != nil && h.istrRepo != nil {
-			if instrument, err := h.istrRepo.GetInstrumentByID(ctx, *a.InstrumentID); err == nil {
-				respItem.Instrument = &InstrumentData{
-					ID:   instrument.ID.String(),
-					Name: instrument.Name,
-					Kind: string(instrument.Kind),
-				}
+		if a.Instrument != nil {
+			respItem.Instrument = &InstrumentData{
+				ID:   a.Instrument.ID.String(),
+				Name: a.Instrument.Name,
+				Kind: string(a.Instrument.Kind),
 			}
 		}
 		resp = append(resp, respItem)

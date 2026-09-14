@@ -37,11 +37,11 @@ func (uc *answerUsecase) CreateAnswer(ctx context.Context, actorID, projectID, p
 	return uc.repo.CreateAnswer(ctx, projectID, participantID, instrumentID, questionKey, parsedType, value, clientGeneratedID)
 }
 
-func (uc *answerUsecase) ListAnswers(ctx context.Context, actorID, projectID, participantID uuid.UUID) ([]domain.AnswerRecord, error) {
+func (uc *answerUsecase) ListAnswers(ctx context.Context, actorID, projectID, participantID uuid.UUID, instrumentID *uuid.UUID) ([]domain.AnswerRecord, error) {
 	if actorID == uuid.Nil || projectID == uuid.Nil || participantID == uuid.Nil {
 		return nil, fmt.Errorf("actor/project/participant ids: %w", domain.ErrValidation)
 	}
-	return uc.repo.ListAnswersByParticipant(ctx, participantID)
+	return uc.repo.ListAnswersByParticipant(ctx, participantID, instrumentID)
 }
 
 func (uc *answerUsecase) CreateMedia(ctx context.Context, actorID, projectID, participantID uuid.UUID, answerID *uuid.UUID, fileKey, mimeType string, sizeBytes int64, durationSeconds *int, checksum *string) (*domain.MediaFile, error) {

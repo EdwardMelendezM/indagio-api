@@ -44,7 +44,7 @@ func (s *stubAnswerRepo) GetAnswerByID(ctx context.Context, answerID uuid.UUID) 
 	return answer, nil
 }
 
-func (s *stubAnswerRepo) ListAnswersByParticipant(ctx context.Context, participantID uuid.UUID) ([]domain.AnswerRecord, error) {
+func (s *stubAnswerRepo) ListAnswersByParticipant(ctx context.Context, participantID uuid.UUID, instrumentID *uuid.UUID) ([]domain.AnswerRecord, error) {
 	out := make([]domain.AnswerRecord, 0)
 	for _, answer := range s.answers {
 		if answer.ParticipantID == participantID {

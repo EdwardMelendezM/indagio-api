@@ -42,6 +42,7 @@ type AnswerRecord struct {
 	ProjectID         uuid.UUID
 	ParticipantID     uuid.UUID
 	InstrumentID      *uuid.UUID
+	Instrument        *Instrument
 	QuestionKey       string
 	AnswerType        AnswerType
 	Value             json.RawMessage
@@ -72,7 +73,7 @@ type MediaFile struct {
 type AnswerRepository interface {
 	CreateAnswer(ctx context.Context, projectID, participantID uuid.UUID, instrumentID *uuid.UUID, questionKey string, answerType AnswerType, value json.RawMessage, clientGeneratedID *string) (*AnswerRecord, error)
 	GetAnswerByID(ctx context.Context, answerID uuid.UUID) (*AnswerRecord, error)
-	ListAnswersByParticipant(ctx context.Context, participantID uuid.UUID) ([]AnswerRecord, error)
+	ListAnswersByParticipant(ctx context.Context, participantID uuid.UUID, instrumentID *uuid.UUID) ([]AnswerRecord, error)
 	UpsertAnswer(ctx context.Context, projectID, participantID uuid.UUID, answerType AnswerType, questionKey string, value json.RawMessage, clientGeneratedID string) (*AnswerRecord, error)
 	CreateMedia(ctx context.Context, projectID, participantID uuid.UUID, answerID *uuid.UUID, fileKey, mimeType string, sizeBytes int64, durationSeconds *int, checksum *string) (*MediaFile, error)
 	ListMediaByAnswer(ctx context.Context, answerID uuid.UUID) ([]MediaFile, error)
@@ -81,6 +82,6 @@ type AnswerRepository interface {
 // AnswerUsecase defines the business logic for answer storage and media workflows.
 type AnswerUsecase interface {
 	CreateAnswer(ctx context.Context, actorID, projectID, participantID uuid.UUID, instrumentID *uuid.UUID, questionKey string, answerType string, value json.RawMessage, clientGeneratedID *string) (*AnswerRecord, error)
-	ListAnswers(ctx context.Context, actorID, projectID, participantID uuid.UUID) ([]AnswerRecord, error)
+	ListAnswers(ctx context.Context, actorID, projectID, participantID uuid.UUID, instrumentID *uuid.UUID) ([]AnswerRecord, error)
 	CreateMedia(ctx context.Context, actorID, projectID, participantID uuid.UUID, answerID *uuid.UUID, fileKey, mimeType string, sizeBytes int64, durationSeconds *int, checksum *string) (*MediaFile, error)
 }

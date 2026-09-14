@@ -79,6 +79,13 @@ func ToAnswerResponse(a *domain.AnswerRecord) AnswerResponse {
 		v := a.InstrumentID.String()
 		resp.InstrumentID = &v
 	}
+	if a.Instrument != nil {
+		resp.Instrument = &InstrumentData{
+			ID:   a.Instrument.ID.String(),
+			Name: a.Instrument.Name,
+			Kind: string(a.Instrument.Kind),
+		}
+	}
 	if a.ClientGeneratedID != nil {
 		resp.ClientGeneratedID = a.ClientGeneratedID
 	}

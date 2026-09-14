@@ -21,6 +21,33 @@ func NewAnswerRepository(db *sql.DB) domain.AnswerRepository {
 	return &postgresAnswerRepository{db: db}
 }
 
+func (r *postgresAnswerRepository) GetInstrumentByID(ctx context.Context, instrumentID uuid.UUID) (*domain.Instrument, error) {
+	var instrument domain.Instrument
+	err := r.db.QueryRowContext(ctx, `
+		SELECT id, project_id, name, kind, config, version, status, created_by, created_at, updated_at
+		FROM instruments
+		WHERE id = $1
+	`, instrumentID).Scan(
+		&instrument.ID,
+		&instrument.ProjectID,
+		&instrument.Name,
+		&instrument.Kind,
+		&instrument.Config,
+		&instrument.Version,
+		&instrument.Status,
+		&instrument.CreatedBy,
+		&instrument.CreatedAt,
+		&instrument.UpdatedAt,
+	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("instrument %s: %w", instrumentID, domain.ErrNotFound)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("query instrument: %w", err)
+	}
+	return &instrument, nil
+}
+
 func scanAnswerRow(answer *domain.AnswerRecord, instrumentID *sql.NullString, clientGeneratedID *sql.NullString, value *[]byte) error {
 	if instrumentID.Valid {
 		parsed, err := uuid.Parse(instrumentID.String)
@@ -33,22 +60,6 @@ func scanAnswerRow(answer *domain.AnswerRecord, instrumentID *sql.NullString, cl
 	}
 	answer.Value = json.RawMessage(*value)
 	return nil
-}
-
-func (r *postgresAnswerRepository) GetInstrumentByID(ctx context.Context, instrumentID uuid.UUID) (*domain.Instrument, error) {
-	var instrument domain.Instrument
-	err := r.db.QueryRowContext(ctx, `
-		SELECT id, name
-		FROM instruments
-		WHERE id = $1
-	`, instrumentID).Scan(&instrument.ID, &instrument.Name)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("instrument %s: %w", instrumentID, domain.ErrNotFound)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("query instrument: %w", err)
-	}
-	return &instrument, nil
 }
 
 func (r *postgresAnswerRepository) CreateAnswer(ctx context.Context, projectID, participantID uuid.UUID, instrumentID *uuid.UUID, questionKey string, answerType domain.AnswerType, value json.RawMessage, clientGeneratedID *string) (*domain.AnswerRecord, error) {
@@ -104,11 +115,17 @@ func (r *postgresAnswerRepository) GetAnswerByID(ctx context.Context, answerID u
 	return &answer, nil
 }
 
-func (r *postgresAnswerRepository) ListAnswersByParticipant(ctx context.Context, participantID uuid.UUID) ([]domain.AnswerRecord, error) {
-	rows, err := r.db.QueryContext(ctx, `
+func (r *postgresAnswerRepository) ListAnswersByParticipant(ctx context.Context, participantID uuid.UUID, instrumentID *uuid.UUID) ([]domain.AnswerRecord, error) {
+	query := `
 		SELECT id, project_id, participant_id, instrument_id, question_key, answer_type, value, status, sync_status, client_generated_id, created_at, updated_at
-		FROM answer_records WHERE participant_id = $1 ORDER BY created_at DESC
-	`, participantID)
+		FROM answer_records WHERE participant_id = $1`
+	args := []any{participantID}
+	if instrumentID != nil {
+		query += " AND instrument_id = $2"
+		args = append(args, *instrumentID)
+	}
+	query += " ORDER BY created_at DESC"
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("list answers: %w", err)
 	}
