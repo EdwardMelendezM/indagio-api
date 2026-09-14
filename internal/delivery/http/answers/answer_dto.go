@@ -10,7 +10,6 @@ import (
 type CreateAnswerRequest struct {
 	ParticipantID     string          `json:"participant_id" binding:"required"`
 	InstrumentID      *string         `json:"instrument_id"`
-	QuestionnaireID   *string         `json:"questionnaire_id"`
 	QuestionKey       string          `json:"question_key" binding:"required"`
 	AnswerType        string          `json:"answer_type" binding:"required"`
 	Value             json.RawMessage `json:"value" binding:"required"`
@@ -31,7 +30,6 @@ type AnswerResponse struct {
 	ProjectID         string          `json:"project_id"`
 	ParticipantID     string          `json:"participant_id"`
 	InstrumentID      *string         `json:"instrument_id,omitempty"`
-	QuestionnaireID   *string         `json:"questionnaire_id,omitempty"`
 	QuestionKey       string          `json:"question_key"`
 	AnswerType        string          `json:"answer_type"`
 	Value             json.RawMessage `json:"value" swaggertype:"object"`
@@ -73,10 +71,6 @@ func ToAnswerResponse(a *domain.AnswerRecord) AnswerResponse {
 	if a.InstrumentID != nil {
 		v := a.InstrumentID.String()
 		resp.InstrumentID = &v
-	}
-	if a.QuestionnaireID != nil {
-		v := a.QuestionnaireID.String()
-		resp.QuestionnaireID = &v
 	}
 	if a.ClientGeneratedID != nil {
 		resp.ClientGeneratedID = a.ClientGeneratedID

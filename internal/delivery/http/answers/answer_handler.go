@@ -63,7 +63,7 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid participant id"})
 		return
 	}
-	var instrumentID, questionnaireID *uuid.UUID
+	var instrumentID *uuid.UUID
 	if req.InstrumentID != nil {
 		parsed, err := uuid.Parse(*req.InstrumentID)
 		if err != nil {
@@ -72,17 +72,9 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 		}
 		instrumentID = &parsed
 	}
-	if req.QuestionnaireID != nil {
-		parsed, err := uuid.Parse(*req.QuestionnaireID)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid questionnaire id"})
-			return
-		}
-		questionnaireID = &parsed
-	}
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
-	answer, err := h.uc.CreateAnswer(ctx, userID, projectID, participantID, instrumentID, questionnaireID, req.QuestionKey, req.AnswerType, req.Value, req.ClientGeneratedID)
+	answer, err := h.uc.CreateAnswer(ctx, userID, projectID, participantID, instrumentID, req.QuestionKey, req.AnswerType, req.Value, req.ClientGeneratedID)
 	if err != nil {
 		utils.HandleError(c, err, h.logger)
 		return

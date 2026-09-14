@@ -17,13 +17,12 @@ type stubAnswerRepo struct {
 	media   map[uuid.UUID]*domain.MediaFile
 }
 
-func (s *stubAnswerRepo) CreateAnswer(ctx context.Context, projectID, participantID uuid.UUID, instrumentID, questionnaireID *uuid.UUID, questionKey string, answerType domain.AnswerType, value json.RawMessage, clientGeneratedID *string) (*domain.AnswerRecord, error) {
+func (s *stubAnswerRepo) CreateAnswer(ctx context.Context, projectID, participantID uuid.UUID, instrumentID *uuid.UUID, questionKey string, answerType domain.AnswerType, value json.RawMessage, clientGeneratedID *string) (*domain.AnswerRecord, error) {
 	answer := &domain.AnswerRecord{
 		ID:                uuid.New(),
 		ProjectID:         projectID,
 		ParticipantID:     participantID,
 		InstrumentID:      instrumentID,
-		QuestionnaireID:   questionnaireID,
 		QuestionKey:       questionKey,
 		AnswerType:        answerType,
 		Value:             value,
@@ -88,7 +87,7 @@ func TestAnswerUsecase_CreateAnswer_RequiresJSONValue(t *testing.T) {
 	participantID := uuid.New()
 	repo := &stubAnswerRepo{answers: map[uuid.UUID]*domain.AnswerRecord{}, media: map[uuid.UUID]*domain.MediaFile{}}
 	uc := NewAnswerUsecase(repo)
-	_, err := uc.CreateAnswer(context.Background(), actorID, projectID, participantID, nil, nil, "q1", "text", json.RawMessage(`not-json`), nil)
+	_, err := uc.CreateAnswer(context.Background(), actorID, projectID, participantID, nil, "q1", "text", json.RawMessage(`not-json`), nil)
 	if !errors.Is(err, domain.ErrValidation) {
 		t.Fatalf("expected ErrValidation, got %v", err)
 	}

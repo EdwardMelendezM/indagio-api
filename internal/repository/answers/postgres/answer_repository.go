@@ -21,13 +21,12 @@ func NewAnswerRepository(db *sql.DB) domain.AnswerRepository {
 	return &postgresAnswerRepository{db: db}
 }
 
-func (r *postgresAnswerRepository) CreateAnswer(ctx context.Context, projectID, participantID uuid.UUID, instrumentID, questionnaireID *uuid.UUID, questionKey string, answerType domain.AnswerType, value json.RawMessage, clientGeneratedID *string) (*domain.AnswerRecord, error) {
+func (r *postgresAnswerRepository) CreateAnswer(ctx context.Context, projectID, participantID uuid.UUID, instrumentID *uuid.UUID, questionKey string, answerType domain.AnswerType, value json.RawMessage, clientGeneratedID *string) (*domain.AnswerRecord, error) {
 	answer := &domain.AnswerRecord{
 		ID:                uuid.New(),
 		ProjectID:         projectID,
 		ParticipantID:     participantID,
 		InstrumentID:      instrumentID,
-		QuestionnaireID:   questionnaireID,
 		QuestionKey:       questionKey,
 		AnswerType:        answerType,
 		Value:             value,
@@ -38,9 +37,9 @@ func (r *postgresAnswerRepository) CreateAnswer(ctx context.Context, projectID, 
 		UpdatedAt:         time.Now().UTC(),
 	}
 	_, err := r.db.ExecContext(ctx, `
-		INSERT INTO answer_records (id, project_id, participant_id, instrument_id, questionnaire_id, question_key, answer_type, value, status, sync_status, client_generated_id, created_at, updated_at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
-	`, answer.ID, answer.ProjectID, answer.ParticipantID, answer.InstrumentID, answer.QuestionnaireID, answer.QuestionKey, answer.AnswerType, answer.Value, answer.Status, answer.SyncStatus, answer.ClientGeneratedID, answer.CreatedAt, answer.UpdatedAt)
+		INSERT INTO answer_records (id, project_id, participant_id, instrument_id, question_key, answer_type, value, status, sync_status, client_generated_id, created_at, updated_at)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+	`, answer.ID, answer.ProjectID, answer.ParticipantID, answer.InstrumentID, answer.QuestionKey, answer.AnswerType, answer.Value, answer.Status, answer.SyncStatus, answer.ClientGeneratedID, answer.CreatedAt, answer.UpdatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("insert answer: %w", err)
 	}
@@ -49,13 +48,13 @@ func (r *postgresAnswerRepository) CreateAnswer(ctx context.Context, projectID, 
 
 func (r *postgresAnswerRepository) GetAnswerByID(ctx context.Context, answerID uuid.UUID) (*domain.AnswerRecord, error) {
 	var answer domain.AnswerRecord
-	var instrumentID, questionnaireID sql.NullString
+	var instrumentID sql.NullString
 	var clientGeneratedID sql.NullString
 	var value []byte
 	err := r.db.QueryRowContext(ctx, `
-		SELECT id, project_id, participant_id, instrument_id, questionnaire_id, question_key, answer_type, value, status, sync_status, client_generated_id, created_at, updated_at 
+		SELECT id, project_id, participant_id, instrument_id, question_key, answer_type, value, status, sync_status, client_generated_id, created_at, updated_at 
 		FROM answer_records WHERE id = $1
-	`, answerID).Scan(&answer.ID, &answer.ProjectID, &answer.ParticipantID, &instrumentID, &questionnaireID, &answer.QuestionKey, &answer.AnswerType, &value, &answer.Status, &answer.SyncStatus, &clientGeneratedID, &answer.CreatedAt, &answer.UpdatedAt)
+	`, answerID).Scan(&answer.ID, &answer.ProjectID, &answer.ParticipantID, &instrumentID, &answer.QuestionKey, &answer.AnswerType, &value, &answer.Status, &answer.SyncStatus, &clientGeneratedID, &answer.CreatedAt, &answer.UpdatedAt)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("answer %s: %w", answerID, domain.ErrNotFound)
 	}
@@ -68,12 +67,6 @@ func (r *postgresAnswerRepository) GetAnswerByID(ctx context.Context, answerID u
 			answer.InstrumentID = &parsed
 		}
 	}
-	if questionnaireID.Valid {
-		parsed, err := uuid.Parse(questionnaireID.String)
-		if err == nil {
-			answer.QuestionnaireID = &parsed
-		}
-	}
 	if clientGeneratedID.Valid {
 		answer.ClientGeneratedID = &clientGeneratedID.String
 	}
@@ -83,7 +76,7 @@ func (r *postgresAnswerRepository) GetAnswerByID(ctx context.Context, answerID u
 
 func (r *postgresAnswerRepository) ListAnswersByParticipant(ctx context.Context, participantID uuid.UUID) ([]domain.AnswerRecord, error) {
 	rows, err := r.db.QueryContext(ctx, `
-		SELECT id, project_id, participant_id, instrument_id, questionnaire_id, question_key, answer_type, value, status, sync_status, client_generated_id, created_at, updated_at
+		SELECT id, project_id, participant_id, instrument_id, question_key, answer_type, value, status, sync_status, client_generated_id, created_at, updated_at
 		FROM answer_records WHERE participant_id = $1 ORDER BY created_at DESC
 	`, participantID)
 	if err != nil {
@@ -93,22 +86,16 @@ func (r *postgresAnswerRepository) ListAnswersByParticipant(ctx context.Context,
 	answers := make([]domain.AnswerRecord, 0)
 	for rows.Next() {
 		var answer domain.AnswerRecord
-		var instrumentID, questionnaireID sql.NullString
+		var instrumentID sql.NullString
 		var clientGeneratedID sql.NullString
 		var value []byte
-		if err := rows.Scan(&answer.ID, &answer.ProjectID, &answer.ParticipantID, &instrumentID, &questionnaireID, &answer.QuestionKey, &answer.AnswerType, &value, &answer.Status, &answer.SyncStatus, &clientGeneratedID, &answer.CreatedAt, &answer.UpdatedAt); err != nil {
+		if err := rows.Scan(&answer.ID, &answer.ProjectID, &answer.ParticipantID, &instrumentID, &answer.QuestionKey, &answer.AnswerType, &value, &answer.Status, &answer.SyncStatus, &clientGeneratedID, &answer.CreatedAt, &answer.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("scan answer: %w", err)
 		}
 		if instrumentID.Valid {
 			parsed, err := uuid.Parse(instrumentID.String)
 			if err == nil {
 				answer.InstrumentID = &parsed
-			}
-		}
-		if questionnaireID.Valid {
-			parsed, err := uuid.Parse(questionnaireID.String)
-			if err == nil {
-				answer.QuestionnaireID = &parsed
 			}
 		}
 		if clientGeneratedID.Valid {
