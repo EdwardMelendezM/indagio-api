@@ -14,12 +14,13 @@ import (
 )
 
 type AnswerHandler struct {
-	uc     domain.AnswerUsecase
-	logger *slog.Logger
+	uc       domain.AnswerUsecase
+	istrRepo domain.InstrumentRepository
+	logger   *slog.Logger
 }
 
-func NewAnswerHandler(uc domain.AnswerUsecase, logger *slog.Logger) *AnswerHandler {
-	return &AnswerHandler{uc: uc, logger: logger}
+func NewAnswerHandler(uc domain.AnswerUsecase, instrumentRepo domain.InstrumentRepository, logger *slog.Logger) *AnswerHandler {
+	return &AnswerHandler{uc: uc, istrRepo: instrumentRepo, logger: logger}
 }
 
 // CreateAnswer godoc
@@ -125,7 +126,17 @@ func (h *AnswerHandler) ListAnswers(c *gin.Context) {
 	}
 	resp := make([]AnswerResponse, 0, len(answers))
 	for _, a := range answers {
-		resp = append(resp, ToAnswerResponse(&a))
+		respItem := ToAnswerResponse(&a)
+		if a.InstrumentID != nil && h.istrRepo != nil {
+			if instrument, err := h.istrRepo.GetInstrumentByID(ctx, *a.InstrumentID); err == nil {
+				respItem.Instrument = &InstrumentData{
+					ID:   instrument.ID.String(),
+					Name: instrument.Name,
+					Kind: string(instrument.Kind),
+				}
+			}
+		}
+		resp = append(resp, respItem)
 	}
 	c.JSON(http.StatusOK, resp)
 }

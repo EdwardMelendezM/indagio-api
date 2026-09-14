@@ -138,7 +138,7 @@ func main() {
 	projectHandler := projecthttp.NewProjectHandler(projectUC, logger)
 	participantHandler := participanthttp.NewParticipantHandler(participantUC, logger)
 	instrumentHandler := instrumenthttp.NewInstrumentHandler(instrumentUC, logger)
-	answerHandler := answerhttp.NewAnswerHandler(answerUC, logger)
+	answerHandler := answerhttp.NewAnswerHandler(answerUC, instrumentRepo, logger)
 	mediaHandler := mediahttp.NewMediaHandler(storageRepo, logger, cfg.Storage.PublicDomain, int64(cfg.Storage.VideoMaxSizeMB)*1024*1024, cfg.Storage.VideoMaxDurationS)
 	syncHandler := synchttp.NewSyncHandler(syncUC)
 	exportHandler := exporthttp.NewExportHandler(exportUC)

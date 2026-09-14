@@ -30,6 +30,7 @@ type AnswerResponse struct {
 	ProjectID         string          `json:"project_id"`
 	ParticipantID     string          `json:"participant_id"`
 	InstrumentID      *string         `json:"instrument_id,omitempty"`
+	Instrument        *InstrumentData `json:"instrument,omitempty"`
 	QuestionKey       string          `json:"question_key"`
 	AnswerType        string          `json:"answer_type"`
 	Value             json.RawMessage `json:"value" swaggertype:"object"`
@@ -38,6 +39,12 @@ type AnswerResponse struct {
 	ClientGeneratedID *string         `json:"client_generated_id,omitempty"`
 	CreatedAt         time.Time       `json:"created_at"`
 	UpdatedAt         time.Time       `json:"updated_at"`
+}
+
+type InstrumentData struct {
+	ID   string `json:"id"`
+	Name string `json:"name,omitempty"`
+	Kind string `json:"kind,omitempty"`
 }
 
 type MediaResponse struct {

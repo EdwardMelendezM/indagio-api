@@ -21,6 +21,36 @@ func NewAnswerRepository(db *sql.DB) domain.AnswerRepository {
 	return &postgresAnswerRepository{db: db}
 }
 
+func scanAnswerRow(answer *domain.AnswerRecord, instrumentID *sql.NullString, clientGeneratedID *sql.NullString, value *[]byte) error {
+	if instrumentID.Valid {
+		parsed, err := uuid.Parse(instrumentID.String)
+		if err == nil {
+			answer.InstrumentID = &parsed
+		}
+	}
+	if clientGeneratedID.Valid {
+		answer.ClientGeneratedID = &clientGeneratedID.String
+	}
+	answer.Value = json.RawMessage(*value)
+	return nil
+}
+
+func (r *postgresAnswerRepository) GetInstrumentByID(ctx context.Context, instrumentID uuid.UUID) (*domain.Instrument, error) {
+	var instrument domain.Instrument
+	err := r.db.QueryRowContext(ctx, `
+		SELECT id, name
+		FROM instruments
+		WHERE id = $1
+	`, instrumentID).Scan(&instrument.ID, &instrument.Name)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("instrument %s: %w", instrumentID, domain.ErrNotFound)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("query instrument: %w", err)
+	}
+	return &instrument, nil
+}
+
 func (r *postgresAnswerRepository) CreateAnswer(ctx context.Context, projectID, participantID uuid.UUID, instrumentID *uuid.UUID, questionKey string, answerType domain.AnswerType, value json.RawMessage, clientGeneratedID *string) (*domain.AnswerRecord, error) {
 	answer := &domain.AnswerRecord{
 		ID:                uuid.New(),
@@ -92,16 +122,7 @@ func (r *postgresAnswerRepository) ListAnswersByParticipant(ctx context.Context,
 		if err := rows.Scan(&answer.ID, &answer.ProjectID, &answer.ParticipantID, &instrumentID, &answer.QuestionKey, &answer.AnswerType, &value, &answer.Status, &answer.SyncStatus, &clientGeneratedID, &answer.CreatedAt, &answer.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("scan answer: %w", err)
 		}
-		if instrumentID.Valid {
-			parsed, err := uuid.Parse(instrumentID.String)
-			if err == nil {
-				answer.InstrumentID = &parsed
-			}
-		}
-		if clientGeneratedID.Valid {
-			answer.ClientGeneratedID = &clientGeneratedID.String
-		}
-		answer.Value = json.RawMessage(value)
+		_ = scanAnswerRow(&answer, &instrumentID, &clientGeneratedID, &value)
 		answers = append(answers, answer)
 	}
 	if err := rows.Err(); err != nil {
