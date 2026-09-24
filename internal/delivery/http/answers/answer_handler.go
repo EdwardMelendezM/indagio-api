@@ -36,7 +36,7 @@ func NewAnswerHandler(uc domain.AnswerUsecase, instrumentRepo domain.InstrumentR
 // @Failure		401 {object} map[string]string
 // @Failure		422 {object} map[string]string
 // @Failure		500 {object} map[string]string
-// @Router		/projects/{id}/answers [post]
+// @Router		/projects/{id}/administrations/{administrationId}/answers [post]
 // @Security	BearerAuth
 func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 	var req CreateAnswerRequest
@@ -59,6 +59,11 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid project id"})
 		return
 	}
+	administrationID, err := uuid.Parse(c.Param("administrationId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid administration id"})
+		return
+	}
 	participantID, err := uuid.Parse(req.ParticipantID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid participant id"})
@@ -75,7 +80,7 @@ func (h *AnswerHandler) CreateAnswer(c *gin.Context) {
 	}
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
-	answer, err := h.uc.CreateAnswer(ctx, userID, projectID, participantID, instrumentID, req.QuestionKey, req.AnswerType, req.Value, req.ClientGeneratedID)
+	answer, err := h.uc.CreateAnswer(ctx, userID, projectID, participantID, instrumentID, administrationID, req.QuestionKey, req.AnswerType, req.Value, req.ClientGeneratedID)
 	if err != nil {
 		utils.HandleError(c, err, h.logger)
 		return

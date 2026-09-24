@@ -19,9 +19,9 @@ func NewAnswerUsecase(repo domain.AnswerRepository) domain.AnswerUsecase {
 	return &answerUsecase{repo: repo}
 }
 
-func (uc *answerUsecase) CreateAnswer(ctx context.Context, actorID, projectID, participantID uuid.UUID, instrumentID *uuid.UUID, questionKey string, answerType string, value json.RawMessage, clientGeneratedID *string) (*domain.AnswerRecord, error) {
+func (uc *answerUsecase) CreateAnswer(ctx context.Context, actorID, projectID, participantID uuid.UUID, instrumentID *uuid.UUID, administrationID uuid.UUID, questionKey string, answerType string, value json.RawMessage, clientGeneratedID *string) (*domain.AnswerRecord, error) {
 	if actorID == uuid.Nil || projectID == uuid.Nil || participantID == uuid.Nil {
-		return nil, fmt.Errorf("actor/project/participant ids: %w", domain.ErrValidation)
+		return nil, fmt.Errorf("actor/project/participant/administration ids: %w", domain.ErrValidation)
 	}
 	questionKey = strings.TrimSpace(questionKey)
 	if questionKey == "" {
@@ -34,7 +34,7 @@ func (uc *answerUsecase) CreateAnswer(ctx context.Context, actorID, projectID, p
 	if parsedType != domain.AnswerTypeSingleChoice && parsedType != domain.AnswerTypeMultipleChoice && parsedType != domain.AnswerTypeText && parsedType != domain.AnswerTypeScale {
 		return nil, fmt.Errorf("answer type: %w", domain.ErrValidation)
 	}
-	return uc.repo.CreateAnswer(ctx, projectID, participantID, instrumentID, questionKey, parsedType, value, clientGeneratedID)
+	return uc.repo.CreateAnswer(ctx, projectID, participantID, instrumentID, administrationID, questionKey, parsedType, value, clientGeneratedID)
 }
 
 func (uc *answerUsecase) ListAnswers(ctx context.Context, actorID, projectID, participantID uuid.UUID, instrumentID *uuid.UUID) ([]domain.AnswerRecord, error) {

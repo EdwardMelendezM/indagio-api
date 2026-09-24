@@ -43,6 +43,7 @@ type AnswerRecord struct {
 	ParticipantID     uuid.UUID
 	InstrumentID      *uuid.UUID
 	Instrument        *Instrument
+	AdministrationID  *uuid.UUID // NUEVO: liga la respuesta a un intento/aplicación específico
 	QuestionKey       string
 	AnswerType        AnswerType
 	Value             json.RawMessage
@@ -71,9 +72,10 @@ type MediaFile struct {
 
 // AnswerRepository is the persistence contract for answer records and media.
 type AnswerRepository interface {
-	CreateAnswer(ctx context.Context, projectID, participantID uuid.UUID, instrumentID *uuid.UUID, questionKey string, answerType AnswerType, value json.RawMessage, clientGeneratedID *string) (*AnswerRecord, error)
+	CreateAnswer(ctx context.Context, projectID, participantID uuid.UUID, instrumentID *uuid.UUID, administrationID uuid.UUID, questionKey string, answerType AnswerType, value json.RawMessage, clientGeneratedID *string) (*AnswerRecord, error)
 	GetAnswerByID(ctx context.Context, answerID uuid.UUID) (*AnswerRecord, error)
 	ListAnswersByParticipant(ctx context.Context, participantID uuid.UUID, instrumentID *uuid.UUID) ([]AnswerRecord, error)
+	ListAnswersByAdministration(ctx context.Context, administrationID uuid.UUID) ([]AnswerRecord, error) // NUEVO: usado por el motor de cálculo
 	UpsertAnswer(ctx context.Context, projectID, participantID uuid.UUID, answerType AnswerType, questionKey string, value json.RawMessage, clientGeneratedID string) (*AnswerRecord, error)
 	CreateMedia(ctx context.Context, projectID, participantID uuid.UUID, answerID *uuid.UUID, fileKey, mimeType string, sizeBytes int64, durationSeconds *int, checksum *string) (*MediaFile, error)
 	ListMediaByAnswer(ctx context.Context, answerID uuid.UUID) ([]MediaFile, error)
@@ -81,7 +83,7 @@ type AnswerRepository interface {
 
 // AnswerUsecase defines the business logic for answer storage and media workflows.
 type AnswerUsecase interface {
-	CreateAnswer(ctx context.Context, actorID, projectID, participantID uuid.UUID, instrumentID *uuid.UUID, questionKey string, answerType string, value json.RawMessage, clientGeneratedID *string) (*AnswerRecord, error)
+	CreateAnswer(ctx context.Context, actorID, projectID, participantID uuid.UUID, instrumentID *uuid.UUID, administrationID uuid.UUID, questionKey string, answerType string, value json.RawMessage, clientGeneratedID *string) (*AnswerRecord, error)
 	ListAnswers(ctx context.Context, actorID, projectID, participantID uuid.UUID, instrumentID *uuid.UUID) ([]AnswerRecord, error)
 	CreateMedia(ctx context.Context, actorID, projectID, participantID uuid.UUID, answerID *uuid.UUID, fileKey, mimeType string, sizeBytes int64, durationSeconds *int, checksum *string) (*MediaFile, error)
 }

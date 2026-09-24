@@ -41,17 +41,23 @@ import (
 	answerhttp "indagio-api/internal/delivery/http/answers"
 	authhttp "indagio-api/internal/delivery/http/auth"
 	exporthttp "indagio-api/internal/delivery/http/exports"
+	instrument_administrations_http "indagio-api/internal/delivery/http/instrument_administrations"
+	instrument_scoring_http "indagio-api/internal/delivery/http/instrument_scoring"
 	instrumenthttp "indagio-api/internal/delivery/http/instruments"
 	mediahttp "indagio-api/internal/delivery/http/media"
 	participanthttp "indagio-api/internal/delivery/http/participants"
 	projecthttp "indagio-api/internal/delivery/http/projects"
 	synchttp "indagio-api/internal/delivery/http/sync"
 	userhttp "indagio-api/internal/delivery/http/user"
+
 	"indagio-api/internal/delivery/worker"
 	"indagio-api/internal/docs"
+
 	adminrepo "indagio-api/internal/repository/admin_user/postgres"
 	answerrepo "indagio-api/internal/repository/answers/postgres"
 	exportrepo "indagio-api/internal/repository/exports/postgres"
+	instrument_administrations_repo "indagio-api/internal/repository/instrument_administration/postgres"
+	instrument_scoring_repo "indagio-api/internal/repository/instrument_scoring/postgres"
 	instrumentrepo "indagio-api/internal/repository/instruments/postgres"
 	jobrepo "indagio-api/internal/repository/jobs/postgres"
 	otprepo "indagio-api/internal/repository/otp/postgres"
@@ -60,15 +66,20 @@ import (
 	storage "indagio-api/internal/repository/storage/cloudflare"
 	syncrepo "indagio-api/internal/repository/sync/postgres"
 	userrepo "indagio-api/internal/repository/users/postgres"
+
 	adminuc "indagio-api/internal/usecase/admin_user"
 	answeruc "indagio-api/internal/usecase/answers"
 	authuc "indagio-api/internal/usecase/auth"
 	exportuc "indagio-api/internal/usecase/exports"
+	instrument_administrations_uc "indagio-api/internal/usecase/instrument_administration"
+	instrument_scoring_uc "indagio-api/internal/usecase/instrument_scoring"
 	instrumentuc "indagio-api/internal/usecase/instruments"
 	participantuc "indagio-api/internal/usecase/participants"
 	projectuc "indagio-api/internal/usecase/projects"
 	syncuc "indagio-api/internal/usecase/sync"
 	useruc "indagio-api/internal/usecase/user"
+
+	scoring "indagio-api/internal/domain"
 	"indagio-api/internal/utils"
 	"indagio-api/middleware"
 )
@@ -117,6 +128,9 @@ func main() {
 	answerRepo := answerrepo.NewAnswerRepository(db)
 	syncRepo := syncrepo.NewSyncRepository(db)
 	exportRepo := exportrepo.NewExportRepository(db)
+	instrumentScoringRepo := instrument_scoring_repo.NewInstrumentScoringRepository(db)
+	administrationRepo := instrument_administrations_repo.NewInstrumentAdministrationRepository(db)
+	scoringEngine := scoring.NewEngine()
 	storageRepo, err := storage.NewR2Repository(cfg.Storage)
 	if err != nil {
 		logger.Error("build storage repository", "error", err)
@@ -132,6 +146,8 @@ func main() {
 	syncUC := syncuc.NewSyncUsecase(syncRepo)
 	exportUC := exportuc.NewExportUsecase(exportRepo)
 	adminUC := adminuc.NewAdminUsecase(adminRepo, userRepo, otpRepo, tokenSvc, emailSvc)
+	instrumentScoringUC := instrument_scoring_uc.NewInstrumentScoringUsecase(instrumentScoringRepo)
+	administrationUC := instrument_administrations_uc.NewInstrumentAdministrationUsecase(administrationRepo, instrumentScoringRepo, answerRepo, scoringEngine)
 
 	authHandler := authhttp.NewAuthHandler(authUC, logger)
 	userHandler := userhttp.NewUserHandler(authUC, userUC, logger)
@@ -143,6 +159,8 @@ func main() {
 	syncHandler := synchttp.NewSyncHandler(syncUC)
 	exportHandler := exporthttp.NewExportHandler(exportUC)
 	adminHandler := adminhttp.NewAdminHandler(adminUC, logger)
+	instrumentScoringHandler := instrument_scoring_http.NewInstrumentScoringHandler(instrumentScoringUC, logger)
+	administrationHandler := instrument_administrations_http.NewInstrumentAdministrationHandler(administrationUC, logger)
 
 	r := gin.New()
 	r.Use(gin.Recovery())
@@ -163,6 +181,8 @@ func main() {
 	synchttp.RegisterSyncRoutes(api, syncHandler)
 	exporthttp.RegisterExportRoutes(api, exportHandler, authMiddleware)
 	adminhttp.RegisterAdminRoutes(api, adminHandler, adminAuthMiddleware)
+	instrument_scoring_http.RegisterInstrumentScoringRoutes(api, instrumentScoringHandler, authMiddleware)
+	instrument_administrations_http.RegisterInstrumentAdministrationRoutes(api, administrationHandler, authMiddleware)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.GET("/healthz", func(c *gin.Context) {
