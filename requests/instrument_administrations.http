@@ -1,0 +1,53 @@
+@host = http://localhost:8080
+@api = {{host}}/api
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTA1Mjc5MzUsImlhdCI6MTc5MDI2ODczNSwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.MumO0Jm7B58XI-SoisbCEtTbgn42TBbSHbBkxLlwyOE
+
+@projectId = c2f086da-0d38-407d-9c9b-1b32d6d4ee8b
+@instrumentId = 0af31964-1d13-4c56-8bf7-cf1bd3f90079
+@participantId = 2a8e7ed3-d1f7-4a41-b8d9-dda1c54df1fd
+
+# Copia el "id" de la respuesta de StartAdministration aquí para usarlo
+# en las siguientes requests y en answers.http
+@administrationId = 33333333-3333-3333-3333-333333333333
+
+### Start administration (PHQ-8 para este participante)
+# Internamente llama GetLatestCatalog y congela instrument_version en la fila.
+# Si el instrumento no tiene ningún catálogo publicado (ver instrument_scoring.http),
+# esto falla porque GetLatestCatalog no encuentra nada.
+POST {{api}}/projects/{{projectId}}/participants/{{participantId}}/instruments/{{instrumentId}}/administrations
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "client_generated_id": "local-admin-uuid-001"
+}
+
+### List administrations (historial de intentos de este participante con este instrumento)
+GET {{api}}/projects/{{projectId}}/participants/{{participantId}}/instruments/{{instrumentId}}/administrations
+Authorization: Bearer {{accessToken}}
+
+### Complete administration
+# Dispara el cálculo: trae el catálogo de la instrument_version congelada,
+# trae los answers vía ListAnswersByAdministration, corre el ScoringEngine,
+# y guarda en instrument_scores. Responde con administration + scores juntos.
+PATCH {{api}}/administrations/{{administrationId}}/complete
+Authorization: Bearer {{accessToken}}
+
+### Abandon administration
+# Usar en vez de complete si el participante no terminó el instrumento.
+# No calcula scores.
+PATCH {{api}}/administrations/{{administrationId}}/abandon
+Authorization: Bearer {{accessToken}}
+
+### Get scores
+# Lee lo que ya quedó guardado en instrument_scores (no recalcula).
+GET {{api}}/administrations/{{administrationId}}/scores
+Authorization: Bearer {{accessToken}}
+
+### Recompute scores
+# Útil si se corrigió algo y hay que recalcular sin pasar de nuevo por /complete.
+# NOTA: hoy no hay forma de editar un answer ya guardado
+# (UpsertAnswer está "not implemented" en el repo), así que este endpoint
+# solo tiene efecto real una vez que exista un flujo de edición de answers.
+POST {{api}}/administrations/{{administrationId}}/scores/recompute
+Authorization: Bearer {{accessToken}}

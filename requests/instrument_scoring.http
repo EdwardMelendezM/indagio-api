@@ -1,0 +1,60 @@
+@host = http://localhost:8080
+@api = {{host}}/api
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTA1Mjc5MzUsImlhdCI6MTc5MDI2ODczNSwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.MumO0Jm7B58XI-SoisbCEtTbgn42TBbSHbBkxLlwyOE
+
+@projectId = c2f086da-0d38-407d-9c9b-1b32d6d4ee8b
+@instrumentId = 0af31964-1d13-4c56-8bf7-cf1bd3f90079
+
+### Publish scoring catalog v1 (PHQ-8 — 8 items, sin subescalas, un solo puntaje total)
+# Orden importa para la validación del backend:
+# - subscales primero (aquí vacío, el PHQ-8 no tiene subescalas)
+# - items: cada subscale_key debe existir ya en el array subscales de este mismo body
+# - rules: al menos una, la de subscale_key null es el puntaje total
+# - bands: opcional, mismo cruce de subscale_key
+POST {{api}}/projects/{{projectId}}/instruments/{{instrumentId}}/versions
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "items": [
+    { "question_key": "phq8_1", "order_index": 1, "item_type": "likert_0_3", "weight": 1, "is_scored": true, "value_map": { "0": 0, "1": 1, "2": 2, "3": 3 } },
+    { "question_key": "phq8_2", "order_index": 2, "item_type": "likert_0_3", "weight": 1, "is_scored": true, "value_map": { "0": 0, "1": 1, "2": 2, "3": 3 } },
+    { "question_key": "phq8_3", "order_index": 3, "item_type": "likert_0_3", "weight": 1, "is_scored": true, "value_map": { "0": 0, "1": 1, "2": 2, "3": 3 } },
+    { "question_key": "phq8_4", "order_index": 4, "item_type": "likert_0_3", "weight": 1, "is_scored": true, "value_map": { "0": 0, "1": 1, "2": 2, "3": 3 } },
+    { "question_key": "phq8_5", "order_index": 5, "item_type": "likert_0_3", "weight": 1, "is_scored": true, "value_map": { "0": 0, "1": 1, "2": 2, "3": 3 } },
+    { "question_key": "phq8_6", "order_index": 6, "item_type": "likert_0_3", "weight": 1, "is_scored": true, "value_map": { "0": 0, "1": 1, "2": 2, "3": 3 } },
+    { "question_key": "phq8_7", "order_index": 7, "item_type": "likert_0_3", "weight": 1, "is_scored": true, "value_map": { "0": 0, "1": 1, "2": 2, "3": 3 } },
+    { "question_key": "phq8_8", "order_index": 8, "item_type": "likert_0_3", "weight": 1, "is_scored": true, "value_map": { "0": 0, "1": 1, "2": 2, "3": 3 } }
+  ],
+  "subscales": [],
+  "rules": [
+    {
+      "subscale_key": null,
+      "algorithm": "sum",
+      "min_items_required": 6,
+      "missing_strategy": "prorate",
+      "config": {}
+    }
+  ],
+  "bands": [
+    { "subscale_key": null, "min_score": 0,  "max_score": 4,  "label": "Mínima" },
+    { "subscale_key": null, "min_score": 5,  "max_score": 9,  "label": "Leve" },
+    { "subscale_key": null, "min_score": 10, "max_score": 14, "label": "Moderada" },
+    { "subscale_key": null, "min_score": 15, "max_score": 19, "label": "Moderadamente severa" },
+    { "subscale_key": null, "min_score": 20, "max_score": 24, "label": "Severa" }
+  ]
+}
+
+### Get latest catalog (sin ?version, trae la última)
+GET {{api}}/projects/{{projectId}}/instruments/{{instrumentId}}/versions
+Authorization: Bearer {{accessToken}}
+
+### Get catalog by specific version
+# Usar siempre el instrument_version congelado que devolvió StartAdministration,
+# no "la última", para que el formulario coincida con la versión del intento.
+GET {{api}}/projects/{{projectId}}/instruments/{{instrumentId}}/versions?version=2
+Authorization: Bearer {{accessToken}}
+
+### List published versions
+GET {{api}}/projects/{{projectId}}/instruments/{{instrumentId}}/versions/list
+Authorization: Bearer {{accessToken}}

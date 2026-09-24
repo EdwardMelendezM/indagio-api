@@ -109,23 +109,23 @@ func (h *InstrumentAdministrationHandler) ListAdministrations(c *gin.Context) {
 // @Summary		Mark an administration as completed and compute its scores
 // @Tags		Instrument Administrations
 // @Produce		json
-// @Param		administrationID path string true "Administration ID"
+// @Param		administrationId path string true "Administration ID"
 // @Success		200 {object} CompleteAdministrationResponse
-// @Router		/administrations/{administrationID}/complete [patch]
+// @Router		/administrations/{administrationId}/complete [patch]
 // @Security	BearerAuth
 func (h *InstrumentAdministrationHandler) CompleteAdministration(c *gin.Context) {
 	actorID, ok := actorIDFromContext(c)
 	if !ok {
 		return
 	}
-	administrationID, err := uuid.Parse(c.Param("administrationID"))
+	administrationId, err := uuid.Parse(c.Param("administrationId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid administration id"})
 		return
 	}
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()
-	admin, scores, err := h.uc.CompleteAdministration(ctx, actorID, administrationID)
+	admin, scores, err := h.uc.CompleteAdministration(ctx, actorID, administrationId)
 	if err != nil {
 		utils.HandleError(c, err, h.logger)
 		return
@@ -137,23 +137,23 @@ func (h *InstrumentAdministrationHandler) CompleteAdministration(c *gin.Context)
 // @Summary		Mark an administration as abandoned
 // @Tags		Instrument Administrations
 // @Produce		json
-// @Param		administrationID path string true "Administration ID"
+// @Param		administrationId path string true "Administration ID"
 // @Success		200 {object} AdministrationResponse
-// @Router		/administrations/{administrationID}/abandon [patch]
+// @Router		/administrations/{administrationId}/abandon [patch]
 // @Security	BearerAuth
 func (h *InstrumentAdministrationHandler) AbandonAdministration(c *gin.Context) {
 	actorID, ok := actorIDFromContext(c)
 	if !ok {
 		return
 	}
-	administrationID, err := uuid.Parse(c.Param("administrationID"))
+	administrationId, err := uuid.Parse(c.Param("administrationId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid administration id"})
 		return
 	}
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
-	admin, err := h.uc.AbandonAdministration(ctx, actorID, administrationID)
+	admin, err := h.uc.AbandonAdministration(ctx, actorID, administrationId)
 	if err != nil {
 		utils.HandleError(c, err, h.logger)
 		return
@@ -165,23 +165,23 @@ func (h *InstrumentAdministrationHandler) AbandonAdministration(c *gin.Context) 
 // @Summary		Get computed scores for an administration
 // @Tags		Instrument Administrations
 // @Produce		json
-// @Param		administrationID path string true "Administration ID"
+// @Param		administrationId path string true "Administration ID"
 // @Success		200 {array} ScoreResponse
-// @Router		/administrations/{administrationID}/scores [get]
+// @Router		/administrations/{administrationId}/scores [get]
 // @Security	BearerAuth
 func (h *InstrumentAdministrationHandler) GetScores(c *gin.Context) {
 	actorID, ok := actorIDFromContext(c)
 	if !ok {
 		return
 	}
-	administrationID, err := uuid.Parse(c.Param("administrationID"))
+	administrationId, err := uuid.Parse(c.Param("administrationId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid administration id"})
 		return
 	}
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
-	scores, err := h.uc.GetScores(ctx, actorID, administrationID)
+	scores, err := h.uc.GetScores(ctx, actorID, administrationId)
 	if err != nil {
 		utils.HandleError(c, err, h.logger)
 		return
@@ -193,23 +193,23 @@ func (h *InstrumentAdministrationHandler) GetScores(c *gin.Context) {
 // @Summary		Recompute scores for an administration (e.g. after fixing an answer)
 // @Tags		Instrument Administrations
 // @Produce		json
-// @Param		administrationID path string true "Administration ID"
+// @Param		administrationId path string true "Administration ID"
 // @Success		200 {array} ScoreResponse
-// @Router		/administrations/{administrationID}/scores/recompute [post]
+// @Router		/administrations/{administrationId}/scores/recompute [post]
 // @Security	BearerAuth
 func (h *InstrumentAdministrationHandler) RecomputeScores(c *gin.Context) {
 	actorID, ok := actorIDFromContext(c)
 	if !ok {
 		return
 	}
-	administrationID, err := uuid.Parse(c.Param("administrationID"))
+	administrationId, err := uuid.Parse(c.Param("administrationId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid administration id"})
 		return
 	}
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()
-	scores, err := h.uc.RecomputeScores(ctx, actorID, administrationID)
+	scores, err := h.uc.RecomputeScores(ctx, actorID, administrationId)
 	if err != nil {
 		utils.HandleError(c, err, h.logger)
 		return
@@ -239,8 +239,8 @@ func RegisterInstrumentAdministrationRoutes(rg *gin.RouterGroup, h *InstrumentAd
 
 	flat := rg.Group("/administrations")
 	flat.Use(authMiddleware)
-	flat.PATCH("/:administrationID/complete", h.CompleteAdministration)
-	flat.PATCH("/:administrationID/abandon", h.AbandonAdministration)
-	flat.GET("/:administrationID/scores", h.GetScores)
-	flat.POST("/:administrationID/scores/recompute", h.RecomputeScores)
+	flat.PATCH("/:administrationId/complete", h.CompleteAdministration)
+	flat.PATCH("/:administrationId/abandon", h.AbandonAdministration)
+	flat.GET("/:administrationId/scores", h.GetScores)
+	flat.POST("/:administrationId/scores/recompute", h.RecomputeScores)
 }

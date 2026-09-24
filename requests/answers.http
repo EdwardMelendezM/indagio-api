@@ -1,32 +1,57 @@
 @host = http://localhost:8080
 @api = {{host}}/api
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODkyNjg3NjgsImlhdCI6MTc4OTAwOTU2OCwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.TGW-H3Mw7HOGUWqLwxWIBvACZgLL4BhvH-22fEcZ_QU
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTA1Mjc5MzUsImlhdCI6MTc5MDI2ODczNSwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.MumO0Jm7B58XI-SoisbCEtTbgn42TBbSHbBkxLlwyOE
 
 @projectId = c2f086da-0d38-407d-9c9b-1b32d6d4ee8b
-@instrumentId = ea35e4ec-499d-49da-a08e-a8758903870a
-@questionnaireId = 9da241b4-c5d2-4e38-bc4f-ea3f1a8fb588
+@instrumentId = 0af31964-1d13-4c56-8bf7-cf1bd3f90079
 
 @participantId = 2a8e7ed3-d1f7-4a41-b8d9-dda1c54df1fd
-@answerId = 73b355de-1694-4ba3-966c-bdc5c10fcbe3
 @participantCode = MXSK2EBN
+@answerId = 73b355de-1694-4ba3-966c-bdc5c10fcbe3
 
-### Create answer
-POST {{api}}/projects/{{projectId}}/answers
+# Obtener este id corriendo antes StartAdministration en instrument_administrations.http
+@administrationId = 110f1415-7587-418c-ab10-1fa0888fbb7c
+
+### Create answer (PHQ-8 item 1 — "Poco interés o placer en hacer cosas")
+# Ruta real: POST /administrations/{administrationId}/answers
+# (NO /projects/{projectId}/answers — esa ruta no existe en el router)
+POST {{api}}/projects/{{projectId}}/administrations/{{administrationId}}/answers
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
   "participant_id": "{{participantId}}",
   "instrument_id": "{{instrumentId}}",
-  "questionnaire_id": "{{questionnaireId}}",
-  "question_key": "satisfaction",
-  "answer_type": "numeric",
-  "value": 4,
-  "client_generated_id": "client-answer-001"
+  "question_key": "phq8_1",
+  "answer_type": "scale",
+  "value": { "raw": 2 },
+  "client_generated_id": "client-answer-phq8-1"
+}
+
+### Create answer (PHQ-8 item 2 — "Decaído(a), deprimido(a) o sin esperanzas")
+POST {{api}}/projects/{{projectId}}/administrations/{{administrationId}}/answers
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "participant_id": "{{participantId}}",
+  "instrument_id": "{{instrumentId}}",
+  "question_key": "phq8_2",
+  "answer_type": "scale",
+  "value": { "raw": 1 },
+  "client_generated_id": "client-answer-phq8-2"
 }
 
 ### List participant answers
+# NOTA: esta ruta filtra por participante en todo el proyecto, no por administration.
+# Si necesitas solo los answers de una administración específica, ese endpoint
+# de listado no existe todavía del lado HTTP (el repo sí tiene
+# ListAnswersByAdministration, pero no está expuesto en un handler/ruta).
 GET {{api}}/projects/{{projectId}}/participants/{{participantId}}/answers
+Authorization: Bearer {{accessToken}}
+
+### List participant answers filtered by instrument
+GET {{api}}/projects/{{projectId}}/participants/{{participantId}}/answers?instrumentId={{instrumentId}}
 Authorization: Bearer {{accessToken}}
 
 ### Create media record

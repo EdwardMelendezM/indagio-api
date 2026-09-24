@@ -217,6 +217,144 @@ const docTemplate = `{
                 }
             }
         },
+        "/administrations/{administrationId}/abandon": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Instrument Administrations"
+                ],
+                "summary": "Mark an administration as abandoned",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Administration ID",
+                        "name": "administrationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/instrument_administrations.AdministrationResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/administrations/{administrationId}/complete": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Instrument Administrations"
+                ],
+                "summary": "Mark an administration as completed and compute its scores",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Administration ID",
+                        "name": "administrationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/instrument_administrations.CompleteAdministrationResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/administrations/{administrationId}/scores": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Instrument Administrations"
+                ],
+                "summary": "Get computed scores for an administration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Administration ID",
+                        "name": "administrationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/instrument_administrations.ScoreResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/administrations/{administrationId}/scores/recompute": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Instrument Administrations"
+                ],
+                "summary": "Recompute scores for an administration (e.g. after fixing an answer)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Administration ID",
+                        "name": "administrationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/instrument_administrations.ScoreResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/available": {
             "get": {
                 "security": [
@@ -1367,7 +1505,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/projects/{id}/answers": {
+        "/projects/{id}/administrations/{administrationId}/answers": {
             "post": {
                 "security": [
                     {
@@ -1740,6 +1878,200 @@ const docTemplate = `{
                             "type": "object",
                             "additionalProperties": {
                                 "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{id}/instruments/{instrumentID}/versions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Instrument Scoring"
+                ],
+                "summary": "Get instrument scoring catalog",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Instrument ID",
+                        "name": "instrumentID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Version (defaults to latest)",
+                        "name": "version",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/instrument_scoring.CatalogResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Publishes a new versioned set of items, subscales, scoring rules and bands for an instrument",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Instrument Scoring"
+                ],
+                "summary": "Publish instrument scoring catalog",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Instrument ID",
+                        "name": "instrumentID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Catalog payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/instrument_scoring.PublishVersionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/instrument_scoring.CatalogResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{id}/instruments/{instrumentID}/versions/list": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Instrument Scoring"
+                ],
+                "summary": "List published catalog versions for an instrument",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Instrument ID",
+                        "name": "instrumentID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
                             }
                         }
                     }
@@ -2231,6 +2563,12 @@ const docTemplate = `{
                         "name": "participantID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Instrument ID",
+                        "name": "instrumentId",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2268,6 +2606,112 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "string"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/{id}/participants/{participantID}/instruments/{instrumentID}/administrations": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Instrument Administrations"
+                ],
+                "summary": "List administrations of an instrument for a participant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Participant ID",
+                        "name": "participantID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Instrument ID",
+                        "name": "instrumentID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/instrument_administrations.AdministrationResponse"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Instrument Administrations"
+                ],
+                "summary": "Start an instrument administration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Participant ID",
+                        "name": "participantID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Instrument ID",
+                        "name": "instrumentID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Idempotency payload",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/instrument_administrations.StartAdministrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/instrument_administrations.AdministrationResponse"
                         }
                     }
                 }
@@ -2538,6 +2982,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "instrument": {
+                    "$ref": "#/definitions/answers.InstrumentData"
+                },
                 "instrument_id": {
                     "type": "string"
                 },
@@ -2548,9 +2995,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "question_key": {
-                    "type": "string"
-                },
-                "questionnaire_id": {
                     "type": "string"
                 },
                 "status": {
@@ -2595,6 +3039,20 @@ const docTemplate = `{
                 },
                 "size_bytes": {
                     "type": "integer"
+                }
+            }
+        },
+        "answers.InstrumentData": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -2758,6 +3216,353 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "instrument_administrations.AdministrationResponse": {
+            "type": "object",
+            "properties": {
+                "client_generated_id": {
+                    "type": "string"
+                },
+                "completed_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "instrument_id": {
+                    "type": "string"
+                },
+                "instrument_version": {
+                    "type": "integer"
+                },
+                "participant_id": {
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "started_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "sync_status": {
+                    "type": "string"
+                }
+            }
+        },
+        "instrument_administrations.CompleteAdministrationResponse": {
+            "type": "object",
+            "properties": {
+                "administration": {
+                    "$ref": "#/definitions/instrument_administrations.AdministrationResponse"
+                },
+                "scores": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/instrument_administrations.ScoreResponse"
+                    }
+                }
+            }
+        },
+        "instrument_administrations.ScoreResponse": {
+            "type": "object",
+            "properties": {
+                "band_label": {
+                    "type": "string"
+                },
+                "computation_version": {
+                    "type": "string"
+                },
+                "computed_at": {
+                    "type": "string"
+                },
+                "items_answered": {
+                    "type": "integer"
+                },
+                "items_expected": {
+                    "type": "integer"
+                },
+                "metadata": {
+                    "type": "object"
+                },
+                "raw_score": {
+                    "type": "number"
+                },
+                "scaled_score": {
+                    "type": "number"
+                },
+                "subscale_key": {
+                    "type": "string"
+                }
+            }
+        },
+        "instrument_administrations.StartAdministrationRequest": {
+            "type": "object",
+            "properties": {
+                "client_generated_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "instrument_scoring.CatalogResponse": {
+            "type": "object",
+            "properties": {
+                "bands": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/instrument_scoring.ScoreBandResponse"
+                    }
+                },
+                "instrument_id": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/instrument_scoring.ItemResponse"
+                    }
+                },
+                "rules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/instrument_scoring.ScoringRuleResponse"
+                    }
+                },
+                "subscales": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/instrument_scoring.SubscaleResponse"
+                    }
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "instrument_scoring.ItemRequest": {
+            "type": "object",
+            "required": [
+                "item_type",
+                "question_key"
+            ],
+            "properties": {
+                "is_scored": {
+                    "type": "boolean"
+                },
+                "item_type": {
+                    "type": "string"
+                },
+                "order_index": {
+                    "type": "integer"
+                },
+                "question_key": {
+                    "type": "string",
+                    "maxLength": 120
+                },
+                "reverse_scored": {
+                    "type": "boolean"
+                },
+                "subscale_key": {
+                    "type": "string"
+                },
+                "value_map": {
+                    "type": "object"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "instrument_scoring.ItemResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "is_scored": {
+                    "type": "boolean"
+                },
+                "item_type": {
+                    "type": "string"
+                },
+                "order_index": {
+                    "type": "integer"
+                },
+                "question_key": {
+                    "type": "string"
+                },
+                "reverse_scored": {
+                    "type": "boolean"
+                },
+                "subscale_key": {
+                    "type": "string"
+                },
+                "value_map": {
+                    "type": "object"
+                },
+                "weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "instrument_scoring.PublishVersionRequest": {
+            "type": "object",
+            "required": [
+                "items",
+                "rules"
+            ],
+            "properties": {
+                "bands": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/instrument_scoring.ScoreBandRequest"
+                    }
+                },
+                "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/instrument_scoring.ItemRequest"
+                    }
+                },
+                "rules": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/instrument_scoring.ScoringRuleRequest"
+                    }
+                },
+                "subscales": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/instrument_scoring.SubscaleRequest"
+                    }
+                }
+            }
+        },
+        "instrument_scoring.ScoreBandRequest": {
+            "type": "object",
+            "required": [
+                "label"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string",
+                    "maxLength": 120
+                },
+                "max_score": {
+                    "type": "number"
+                },
+                "min_score": {
+                    "type": "number"
+                },
+                "subscale_key": {
+                    "type": "string"
+                }
+            }
+        },
+        "instrument_scoring.ScoreBandResponse": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "max_score": {
+                    "type": "number"
+                },
+                "min_score": {
+                    "type": "number"
+                },
+                "subscale_key": {
+                    "type": "string"
+                }
+            }
+        },
+        "instrument_scoring.ScoringRuleRequest": {
+            "type": "object",
+            "required": [
+                "algorithm",
+                "missing_strategy"
+            ],
+            "properties": {
+                "algorithm": {
+                    "type": "string"
+                },
+                "config": {
+                    "type": "object"
+                },
+                "min_items_required": {
+                    "type": "integer"
+                },
+                "missing_strategy": {
+                    "type": "string"
+                },
+                "subscale_key": {
+                    "type": "string"
+                }
+            }
+        },
+        "instrument_scoring.ScoringRuleResponse": {
+            "type": "object",
+            "properties": {
+                "algorithm": {
+                    "type": "string"
+                },
+                "config": {
+                    "type": "object"
+                },
+                "min_items_required": {
+                    "type": "integer"
+                },
+                "missing_strategy": {
+                    "type": "string"
+                },
+                "subscale_key": {
+                    "type": "string"
+                }
+            }
+        },
+        "instrument_scoring.SubscaleRequest": {
+            "type": "object",
+            "required": [
+                "key",
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string",
+                    "maxLength": 64
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 160
+                }
+            }
+        },
+        "instrument_scoring.SubscaleResponse": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }

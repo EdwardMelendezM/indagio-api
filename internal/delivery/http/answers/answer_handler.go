@@ -216,9 +216,12 @@ func (h *AnswerHandler) CreateMedia(c *gin.Context) {
 }
 
 func RegisterAnswerRoutes(rg *gin.RouterGroup, h *AnswerHandler, authMiddleware gin.HandlerFunc) {
-	answers := rg.Group("/projects/:id")
-	answers.Use(authMiddleware)
-	answers.POST("/answers", h.CreateAnswer)
-	answers.GET("/participants/:participantID/answers", h.ListAnswers)
-	answers.POST("/participants/:participantID/media", h.CreateMedia)
+	projectScoped := rg.Group("/projects/:id")
+	projectScoped.Use(authMiddleware)
+	projectScoped.GET("/participants/:participantID/answers", h.ListAnswers)
+	projectScoped.POST("/participants/:participantID/media", h.CreateMedia)
+
+	administrationScoped := rg.Group("/projects/:id/administrations/:administrationId")
+	administrationScoped.Use(authMiddleware)
+	administrationScoped.POST("/answers", h.CreateAnswer)
 }

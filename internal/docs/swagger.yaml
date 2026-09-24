@@ -55,6 +55,8 @@ definitions:
         type: string
       id:
         type: string
+      instrument:
+        $ref: '#/definitions/answers.InstrumentData'
       instrument_id:
         type: string
       participant_id:
@@ -62,8 +64,6 @@ definitions:
       project_id:
         type: string
       question_key:
-        type: string
-      questionnaire_id:
         type: string
       status:
         type: string
@@ -94,6 +94,15 @@ definitions:
     - file_key
     - mime_type
     - size_bytes
+    type: object
+  answers.InstrumentData:
+    properties:
+      id:
+        type: string
+      kind:
+        type: string
+      name:
+        type: string
     type: object
   answers.MediaResponse:
     properties:
@@ -204,6 +213,236 @@ definitions:
     required:
     - code
     - email
+    type: object
+  instrument_administrations.AdministrationResponse:
+    properties:
+      client_generated_id:
+        type: string
+      completed_at:
+        type: string
+      id:
+        type: string
+      instrument_id:
+        type: string
+      instrument_version:
+        type: integer
+      participant_id:
+        type: string
+      project_id:
+        type: string
+      started_at:
+        type: string
+      status:
+        type: string
+      sync_status:
+        type: string
+    type: object
+  instrument_administrations.CompleteAdministrationResponse:
+    properties:
+      administration:
+        $ref: '#/definitions/instrument_administrations.AdministrationResponse'
+      scores:
+        items:
+          $ref: '#/definitions/instrument_administrations.ScoreResponse'
+        type: array
+    type: object
+  instrument_administrations.ScoreResponse:
+    properties:
+      band_label:
+        type: string
+      computation_version:
+        type: string
+      computed_at:
+        type: string
+      items_answered:
+        type: integer
+      items_expected:
+        type: integer
+      metadata:
+        type: object
+      raw_score:
+        type: number
+      scaled_score:
+        type: number
+      subscale_key:
+        type: string
+    type: object
+  instrument_administrations.StartAdministrationRequest:
+    properties:
+      client_generated_id:
+        type: string
+    type: object
+  instrument_scoring.CatalogResponse:
+    properties:
+      bands:
+        items:
+          $ref: '#/definitions/instrument_scoring.ScoreBandResponse'
+        type: array
+      instrument_id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/instrument_scoring.ItemResponse'
+        type: array
+      rules:
+        items:
+          $ref: '#/definitions/instrument_scoring.ScoringRuleResponse'
+        type: array
+      subscales:
+        items:
+          $ref: '#/definitions/instrument_scoring.SubscaleResponse'
+        type: array
+      version:
+        type: integer
+    type: object
+  instrument_scoring.ItemRequest:
+    properties:
+      is_scored:
+        type: boolean
+      item_type:
+        type: string
+      order_index:
+        type: integer
+      question_key:
+        maxLength: 120
+        type: string
+      reverse_scored:
+        type: boolean
+      subscale_key:
+        type: string
+      value_map:
+        type: object
+      weight:
+        type: number
+    required:
+    - item_type
+    - question_key
+    type: object
+  instrument_scoring.ItemResponse:
+    properties:
+      id:
+        type: string
+      is_scored:
+        type: boolean
+      item_type:
+        type: string
+      order_index:
+        type: integer
+      question_key:
+        type: string
+      reverse_scored:
+        type: boolean
+      subscale_key:
+        type: string
+      value_map:
+        type: object
+      weight:
+        type: number
+    type: object
+  instrument_scoring.PublishVersionRequest:
+    properties:
+      bands:
+        items:
+          $ref: '#/definitions/instrument_scoring.ScoreBandRequest'
+        type: array
+      items:
+        items:
+          $ref: '#/definitions/instrument_scoring.ItemRequest'
+        minItems: 1
+        type: array
+      rules:
+        items:
+          $ref: '#/definitions/instrument_scoring.ScoringRuleRequest'
+        minItems: 1
+        type: array
+      subscales:
+        items:
+          $ref: '#/definitions/instrument_scoring.SubscaleRequest'
+        type: array
+    required:
+    - items
+    - rules
+    type: object
+  instrument_scoring.ScoreBandRequest:
+    properties:
+      description:
+        type: string
+      label:
+        maxLength: 120
+        type: string
+      max_score:
+        type: number
+      min_score:
+        type: number
+      subscale_key:
+        type: string
+    required:
+    - label
+    type: object
+  instrument_scoring.ScoreBandResponse:
+    properties:
+      description:
+        type: string
+      label:
+        type: string
+      max_score:
+        type: number
+      min_score:
+        type: number
+      subscale_key:
+        type: string
+    type: object
+  instrument_scoring.ScoringRuleRequest:
+    properties:
+      algorithm:
+        type: string
+      config:
+        type: object
+      min_items_required:
+        type: integer
+      missing_strategy:
+        type: string
+      subscale_key:
+        type: string
+    required:
+    - algorithm
+    - missing_strategy
+    type: object
+  instrument_scoring.ScoringRuleResponse:
+    properties:
+      algorithm:
+        type: string
+      config:
+        type: object
+      min_items_required:
+        type: integer
+      missing_strategy:
+        type: string
+      subscale_key:
+        type: string
+    type: object
+  instrument_scoring.SubscaleRequest:
+    properties:
+      description:
+        type: string
+      key:
+        maxLength: 64
+        type: string
+      name:
+        maxLength: 160
+        type: string
+    required:
+    - key
+    - name
+    type: object
+  instrument_scoring.SubscaleResponse:
+    properties:
+      description:
+        type: string
+      key:
+        type: string
+      name:
+        type: string
     type: object
   instruments.CreateInstrumentRequest:
     properties:
@@ -634,6 +873,90 @@ paths:
       summary: Current admin identity
       tags:
       - AdminAuth
+  /administrations/{administrationId}/abandon:
+    patch:
+      parameters:
+      - description: Administration ID
+        in: path
+        name: administrationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/instrument_administrations.AdministrationResponse'
+      security:
+      - BearerAuth: []
+      summary: Mark an administration as abandoned
+      tags:
+      - Instrument Administrations
+  /administrations/{administrationId}/complete:
+    patch:
+      parameters:
+      - description: Administration ID
+        in: path
+        name: administrationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/instrument_administrations.CompleteAdministrationResponse'
+      security:
+      - BearerAuth: []
+      summary: Mark an administration as completed and compute its scores
+      tags:
+      - Instrument Administrations
+  /administrations/{administrationId}/scores:
+    get:
+      parameters:
+      - description: Administration ID
+        in: path
+        name: administrationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/instrument_administrations.ScoreResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get computed scores for an administration
+      tags:
+      - Instrument Administrations
+  /administrations/{administrationId}/scores/recompute:
+    post:
+      parameters:
+      - description: Administration ID
+        in: path
+        name: administrationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/instrument_administrations.ScoreResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Recompute scores for an administration (e.g. after fixing an answer)
+      tags:
+      - Instrument Administrations
   /api/users/{id}:
     get:
       description: |-
@@ -1390,7 +1713,7 @@ paths:
       summary: Update project
       tags:
       - Projects
-  /projects/{id}/answers:
+  /projects/{id}/administrations/{administrationId}/answers:
     post:
       consumes:
       - application/json
@@ -1635,6 +1958,132 @@ paths:
       summary: Update instrument
       tags:
       - Instruments
+  /projects/{id}/instruments/{instrumentID}/versions:
+    get:
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Instrument ID
+        in: path
+        name: instrumentID
+        required: true
+        type: string
+      - description: Version (defaults to latest)
+        in: query
+        name: version
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/instrument_scoring.CatalogResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get instrument scoring catalog
+      tags:
+      - Instrument Scoring
+    post:
+      consumes:
+      - application/json
+      description: Publishes a new versioned set of items, subscales, scoring rules
+        and bands for an instrument
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Instrument ID
+        in: path
+        name: instrumentID
+        required: true
+        type: string
+      - description: Catalog payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/instrument_scoring.PublishVersionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/instrument_scoring.CatalogResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Publish instrument scoring catalog
+      tags:
+      - Instrument Scoring
+  /projects/{id}/instruments/{instrumentID}/versions/list:
+    get:
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Instrument ID
+        in: path
+        name: instrumentID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: integer
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List published catalog versions for an instrument
+      tags:
+      - Instrument Scoring
   /projects/{id}/members:
     get:
       description: List all members in a project
@@ -1894,6 +2343,10 @@ paths:
         name: participantID
         required: true
         type: string
+      - description: Instrument ID
+        in: query
+        name: instrumentId
+        type: string
       produces:
       - application/json
       responses:
@@ -1926,6 +2379,74 @@ paths:
       summary: List participant answers
       tags:
       - Answers
+  /projects/{id}/participants/{participantID}/instruments/{instrumentID}/administrations:
+    get:
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Participant ID
+        in: path
+        name: participantID
+        required: true
+        type: string
+      - description: Instrument ID
+        in: path
+        name: instrumentID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/instrument_administrations.AdministrationResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List administrations of an instrument for a participant
+      tags:
+      - Instrument Administrations
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Participant ID
+        in: path
+        name: participantID
+        required: true
+        type: string
+      - description: Instrument ID
+        in: path
+        name: instrumentID
+        required: true
+        type: string
+      - description: Idempotency payload
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/instrument_administrations.StartAdministrationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/instrument_administrations.AdministrationResponse'
+      security:
+      - BearerAuth: []
+      summary: Start an instrument administration
+      tags:
+      - Instrument Administrations
   /projects/{id}/participants/{participantID}/media:
     post:
       consumes:

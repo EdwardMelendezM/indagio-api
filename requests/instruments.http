@@ -1,6 +1,6 @@
 @host = http://localhost:8080
 @api = {{host}}/api
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODkyNjg3NjgsImlhdCI6MTc4OTAwOTU2OCwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.TGW-H3Mw7HOGUWqLwxWIBvACZgLL4BhvH-22fEcZ_QU
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTA1Mjc5MzUsImlhdCI6MTc5MDI2ODczNSwicm9sZSI6ImVzdHVkaWFudGUiLCJ1c2VyX2lkIjoiNzJlYmRjODEtZmRkMS00MjU5LThkZTctOTc0YjhhN2I1NzQ3In0.MumO0Jm7B58XI-SoisbCEtTbgn42TBbSHbBkxLlwyOE
 
 @projectId = c2f086da-0d38-407d-9c9b-1b32d6d4ee8b
 @instrumentId = ea35e4ec-499d-49da-a08e-a8758903870a
@@ -12,18 +12,16 @@ Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-  "name": "Customer satisfaction survey",
+  "name": "Prueba onichan 1",
   "kind": "single_choice",
   "config": {
-    "type": "object",
-    "properties": {
-      "question": { "type": "string" },
-      "options": {
-        "type": "array",
-        "items": { "type": "string" }
-      }
-    },
-    "required": ["question", "options"]
+    "description": "Patient Health Questionnaire - 8 items",
+    "response_labels": [
+      "Ningún día",
+      "Varios días",
+      "Más de la mitad de los días",
+      "Casi todos los días"
+    ]
   }
 }
 
